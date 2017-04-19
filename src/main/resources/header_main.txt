@@ -1,0 +1,99 @@
+#######################################################################
+locale
+#######################################################################
+Defines the locale to use.
+
+Locale files are found in Horses/locale/<locale>.yml
+
+Currently only en.yml is implemented in Horses
+
+#######################################################################
+WorldConfigs
+#######################################################################
+A list of worlds to create custom configs for.
+
+Any worlds listed here will have a similar copy of this config
+    generated inside of the 'worlds' folder.
+
+You can find the world configuration in:
+    plugins/Horses/worlds/<worldname>/config.yml
+    
+These configurations will apply to the player when they are in the
+    given world.
+
+#######################################################################
+DatabaseType
+#######################################################################
+Specifies the database to use to store player data.
+
+Valid DatabaseTypes are YAML, MYSQL and DUMMY
+
+If a database fails to initialize the DUMMY database will be used.
+
+Types:
+- YAML: Stores a single yaml file per player in playerdata/<user>.yml
+    YAML is the default database
+- MYSQL: Stores data in a MySQL database. If this option is selected
+    a config file named 'mysql.yml' will appear which you need to
+    use to setup MySQL.
+    If MySQL fails to connect on startup the Dummy Database will be
+    used.
+    This database type can be used to share horses between servers.
+- DUMMY: Does not store any data. Horses are lost upon quiting.
+    To be used for testing purposes.
+
+#######################################################################
+ImportDatabaseType
+#######################################################################
+Specifies a database type to be imported into the current database type
+
+Note that you should NOT use this to import into a database unless
+    the database you are importing to is empty.
+    
+    Unexpected errors can occur if this is done.
+
+At startup/reload the selected database will be loaded and then saved
+    into the current database. This can take some time and may slow
+    startup/reload considerably.
+
+After the import has been run this setting is reset to 'NONE' so
+    multiple imports do not occur.
+
+#######################################################################
+EnableWorldGuardIntegration
+#######################################################################
+If true the world guard configuration settings will be generated
+
+If false Horses will not interact with WorldGuard directly.
+
+Current WorldGuard integration allows you to specify in which regions
+    players are allowed to use certain commands.
+
+#######################################################################
+ShowAuthorInCommand
+#######################################################################
+If true the /horses and /horses help commands shows the following
+    Horses v<version number> by ShadowDog007
+If false 'by ShadowDog007' is omitted
+
+#######################################################################
+ForceEnglishCharacters
+#######################################################################
+If true all commands which accept horse names will only allow
+    the characters a to z, 0 to 9, & and underscores.
+
+If false all characters will be allowed except for space.
+
+Note: You may face corruption issues if this is set to false.
+    It has been untested.
+
+#######################################################################
+RejectedHorseNamePattern
+#######################################################################
+Regex pattern which defines which horse names will not be allowed.
+
+To learn regex go here:
+    http://www.regular-expressions.info/quickstart.html
+For reference:
+    http://www.regular-expressions.info/reference.html
+

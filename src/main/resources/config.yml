@@ -1,0 +1,954 @@
+# Horses v1.1.13-Z12 by ShadowDog007
+# http://dev.bukkit.org/bukkit-plugins/horse-stables/
+#
+# #######################################################################
+# locale
+# #######################################################################
+# Defines the locale to use.
+#
+# Locale files are found in Horses/locale/<locale>.yml
+#
+# Currently only en.yml is implemented in Horses
+#
+# #######################################################################
+# WorldConfigs
+# #######################################################################
+# A list of worlds to create custom configs for.
+#
+# Any worlds listed here will have a similar copy of this config
+#     generated inside of the 'worlds' folder.
+#
+# You can find the world configuration in:
+#     plugins/Horses/worlds/<worldname>/config.yml
+#
+# These configurations will apply to the player when they are in the
+#     given world.
+#
+# #######################################################################
+# DatabaseType
+# #######################################################################
+# Specifies the database to use to store player data.
+#
+# Valid DatabaseTypes are YAML, MYSQL and DUMMY
+#
+# If a database fails to initialize the DUMMY database will be used.
+#
+# Types:
+# - YAML: Stores a single yaml file per player in playerdata/<user>.yml
+#     YAML is the default database
+# - MYSQL: Stores data in a MySQL database. If this option is selected
+#     a config file named 'mysql.yml' will appear which you need to
+#     use to setup MySQL.
+#     If MySQL fails to connect on startup the Dummy Database will be
+#     used.
+#     This database type can be used to share horses between servers.
+# - DUMMY: Does not store any data. Horses are lost upon quiting.
+#     To be used for testing purposes.
+#
+# #######################################################################
+# ImportDatabaseType
+# #######################################################################
+# Specifies a database type to be imported into the current database type
+#
+# Note that you should NOT use this to import into a database unless
+#     the database you are importing to is empty.
+#
+#     Unexpected errors can occur if this is done.
+#
+# At startup/reload the selected database will be loaded and then saved
+#     into the current database. This can take some time and may slow
+#     startup/reload considerably.
+#
+# After the import has been run this setting is reset to 'NONE' so
+#     multiple imports do not occur.
+#
+# #######################################################################
+# EnableWorldGuardIntegration
+# #######################################################################
+# If true the world guard configuration settings will be generated
+#
+# If false Horses will not interact with WorldGuard directly.
+#
+# Current WorldGuard integration allows you to specify in which regions
+#     players are allowed to use certain commands.
+#
+# #######################################################################
+# ShowAuthorInCommand
+# #######################################################################
+# If true the /horses and /horses help commands shows the following
+#     Horses v<version number> by ShadowDog007
+# If false 'by ShadowDog007' is omitted
+#
+# #######################################################################
+# ForceEnglishCharacters
+# #######################################################################
+# If true all commands which accept horse names will only allow
+#     the characters a to z, 0 to 9, & and underscores.
+#
+# If false all characters will be allowed except for space.
+#
+# Note: You may face corruption issues if this is set to false.
+#     It has been untested.
+#
+# #######################################################################
+# RejectedHorseNamePattern
+# #######################################################################
+# Regex pattern which defines which horse names will not be allowed.
+#
+# To learn regex go here:
+#     http://www.regular-expressions.info/quickstart.html
+# For reference:
+#     http://www.regular-expressions.info/reference.html
+#
+# #######################################################################
+# PermissionConfigs
+# #######################################################################
+# A list of permissions to use to decide which configuration to use
+#     for a given player.
+#
+# The order of the list is important. If you wish to have a certain
+#     permission override another it should be above the other permission
+#
+# For each permission a new configuration is created.
+#
+# The permission configs should be generated in the same folder
+#     as this one.
+#
+# If no permission is found for a player, this configuration is used
+#
+# e.g.
+# PermissionConfigs:
+# - forge.admin
+# - forge.vip
+#
+# Two new files would be created. One named 'forge.admin.yml'
+#     another named 'forge.vip.yml'
+#
+#     Using this you could set prices for horses to 0.0 for admins for
+#     testing.
+#
+#     Have VIP's have a lesser price to make them happy
+#
+#     And then the default config would be used for anyone who does not
+#     have either of those permissions.
+#
+# #######################################################################
+# StableGroup
+# #######################################################################
+# Defines the stable group to use when players are inside the
+#     given world.
+#
+# Can be defined in all world configurations but the global one and
+#     permission configs.
+#
+# If set to 'default' the global stable will be used.
+# #######################################################################
+# BypassSpawnProtection
+# #######################################################################
+# If true, Horses will attempt to force the spawning of summoned horses
+#
+# #######################################################################
+# DismissHorseOnTeleport
+# #######################################################################
+# If true a players horse will be auto-dismissed upon teleporting away
+#     from their horse.
+#
+# Note: This setting is currently forced to true until issues with
+#     teleporting Horses are fixed.
+#
+# #######################################################################
+# StartWithSaddle
+# #######################################################################
+# If true newly bought horses will be given a saddle
+#
+# #######################################################################
+# MaxHorses
+# #######################################################################
+# The number of horses the player is allowed in their stable
+#
+# Note: Its best that this setting is not 'too' high. If it is too high
+#     your server could get lag when saving players stable data to disk
+#
+# #######################################################################
+# SummonDelay
+# #######################################################################
+# The delay in seconds to wait after a player using /horses summon
+#     before their horse is actually summoned.
+#
+# #######################################################################
+# CancelSummonOnMove
+# #######################################################################
+# If true players summon will be cancelled when they move from their
+#     current position
+#
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# Commands
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# The settings in this group allow you to deny/allow certain commands
+#
+# NOTE: Players must first have the correct permission to use the command
+#     or this setting will have no effect
+#
+# Using this and aditional world configs, you can easily deny
+#     summoning (and other commands) in certain worlds
+#
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# Renaming
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# The following settings are related to renaming horses in the wild
+#     and also horses the player has in their stable
+#
+# #######################################################################
+# BlockRenamingOnWildHorses
+# #######################################################################
+# If true players will be unable to rename wild horses with NameTags
+#     as you normally can in Minecraft
+#
+# #######################################################################
+# AllowClaimingWithNameTag
+# #######################################################################
+# If true players will be able to add wild horses to their stables.
+#
+# A player is required to set a name on a name tag then right click the
+#     horse they wish to add to their stable.
+#
+# Normal requirements in stable size and horse name apply.
+#
+# Claiming wild horses bypasses the horses.type.<typename> permissions
+#
+# #######################################################################
+# AllowRenamingFromNameTag
+# #######################################################################
+# If true players are allowed to rename their currently summoned horses
+#     with a name tag (Works just like vanilla renaming)
+#
+# Normal restrictions on horse names are applied
+#
+# #######################################################################
+# RequireNameTagForRenaming
+# #######################################################################
+# If true players will be required to be holding a NameTag in their hand
+#     in order to use the '/horses rename' command
+#
+# #######################################################################
+# MaxHorseNameLength
+# #######################################################################
+# The maximum length a horses name can be.
+#
+# This value is capped at 30. And includes formatting codes like '&3'
+#
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# Damage
+# #$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#
+# The following settings are related to damage of players
+#     owned and active horses.
+#
+# Includes handling of death of horses.
+#
+# #######################################################################
+# ProtectedDamageCauses
+# #######################################################################
+# A list of damage causes which will be made to have no effect on
+#     a players active horse.
+#
+# For valid damage causes see here:
+#     http://jd.bukkit.org/dev/apidocs/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html
+#
+# #######################################################################
+# InvincibleHorses
+# #######################################################################
+# If true players horses will take no damage whatsoever.
+#
+# #######################################################################
+# ProtectFromOwner
+# #######################################################################
+# If true the owner of a horse will be unable to directly hurt
+#     their horse.
+#
+# #######################################################################
+# ProtectFromPlayers
+# #######################################################################
+# If true no players (including the owner) will be able to hurt any
+#     active horses.
+#
+# #######################################################################
+# ProtectFromMobs
+# #######################################################################
+# If true no mobs will be able to hurt an active horse
+#
+# #######################################################################
+# OnlyHurtIfOwnerCanBeHurt
+# #######################################################################
+# If true, when a players horse takes damage an event will be fired
+#     saying that the horses owner got damaged.
+#
+#     If the event is cancelled, the damage applied to the horse will
+#     also be cancelled.
+#
+# This could be useful in PVP protected areas, also when using plugins
+#     which put players in 'teams'
+#
+#     E.G. Factions mod, a players horses will not be able
+#     to be hurt by their allies.
+#
+# Note that this currently will not work with Anti-Cheat plugins other
+#     than NoCheatPlus. If you want it support for other Anti-Cheat
+#     plugins make a ticket on the BukkitDev page for Horses.
+#
+# #######################################################################
+# TransferDamageToRider
+# #######################################################################
+# If true damage taken by a player owned horse will be transfered to
+#     the rider.
+#
+# The amount of damage depends on the max health both the horse and
+#     the player.
+#
+# The percent of health the horse would have lost will be done on the
+#     rider.
+#
+# i.e. RiderDamge = Damage / HorseMaxHP * PlayerMaxHP
+#
+# #######################################################################
+# DeleteHorseOnDeath
+# #######################################################################
+# If this is true a players horse will be deleted from their stable
+#     and no long be able to be summoned after the horse dies.
+#
+# Note: This overrides the value of 'DeleteHorseOnDeathByPlayer'
+#
+# #######################################################################
+# DeleteHorseOnDeathByPlayer
+# #######################################################################
+# If this is true a players horse will be deleted from their stable
+#     and no long be able to be summoned after the horse dies by another
+#     players hands.
+#
+# #######################################################################
+# KeepEquipmentOnDeath
+# #######################################################################
+# If true when a players active horse dies no items will be dropped.
+#     When the player summons their horse again all their items will
+#     still be present.
+#
+# If false when a players active horse dies, all the items from it will
+#     be dropped to the ground and will not be on the horse when
+#     the player summons their horse again.
+#
+# #######################################################################
+# DeathCooldown
+# #######################################################################
+# The time in seconds before a player is allowed to summon their horse
+#     after it has died.
+
+BaseHorseItem: "383:100 1 Unbreaking:1 name:&9Horse_Egg lore:&3Name:_&5{display-name}|&3Breed:_&f{breed}|&3Speed:_&f{speed}|&3JumpStrength:_&f{jump-strength}|&3MaxHealth:_&f{max-health}|&3Saddle:_&f{saddle}|&3Barding:_&5{barding}|&3Saddlebag:_&f{saddle-bag}|&0&kHorseid:{horse-id}"
+HorseIdSyntax: "&0&kHorseid:"
+HorsePackCost: "Paper 1 Unbreaking:1 name:&9Animal_Transport_Permit lore:&6Left_click_an_unnamed|&6animal_to_pack_it_up|&6into_a_spawn_egg.|&71_Time_Use."
+HorsePackItemNeededMessage: "You need an animal permit to pack up a horse"
+Trails:
+  spectral:
+    smokepart:
+      particle-name: smoke
+      y-offset: 1
+      ticks: 4t
+      render-distance: 32
+      player-distance: 32
+      horiz-spread: 0.5
+      vert-spread: 0.5
+      speed: 0.0
+      count: 72
+    ambientpart:
+      particle-name: mobSpellAmbient
+      y-offset: 1
+      ticks: 2t
+      render-distance: 32
+      player-distance: 32
+      horiz-spread: 0.5
+      vert-spread: 0.5
+      speed: 0.0
+      count: 32
+SpawnEffects:
+  particles:
+    ambientpart:
+      particle-name: mobSpellAmbient
+      y-offset: 1
+      render-distance: 32
+      player-distance: 32
+      horiz-spread: 0.5
+      vert-spread: 0.5
+      speed: 0.0
+      count: 150
+DismissEffects:
+  particles:
+    ambientpart:
+      particle-name: mobSpellAmbient
+      y-offset: 1
+      render-distance: 32
+      player-distance: 32
+      horiz-spread: 0.5
+      vert-spread: 0.5
+      speed: 0.0
+      count: 150
+Saddles:
+  spectralsaddle:
+  - saddle 1 Unbreaking:1 Name:&5Spectral_Saddle lore:&9&o"A_black,_intricate|&9&osaddle,_embroidered|&9&owith_dark_almost|&9&oprismatic_threading|&9&oand_gold_accents."|&6Trail:_Spectral
+Bardings:
+  specialgilded:
+  - GOLD_BARDING 1 Protection:3 Name:&5Gold_Autumn_Barding lore:&9&o"Gold_and_gleaming,_this|&9&obeautiful_barding_is_a_mark|&9&oof_one_with_great_taste.|&5Harvest_Festival_MMXIV"
+JumpPerLevel: 0.2
+SpeedPerLevel: 0.2
+locale: en
+WorldConfigs: []
+DatabaseType: YAML
+ImportDatabaseType: NONE
+EnableWorldGuardIntegration: false
+ShowAuthorInCommand: true
+ForceEnglishCharacters: true
+RejectedHorseNamePattern: f.?u.?c.?k|d.?[1i].?(c.?k?|c|k)|c.?u.?n.?t
+FixZeroJumpStrength: true
+PermissionConfigs: []
+BypassSpawnProtection: false
+DismissHorseOnTeleport: true
+StartWithSaddle: true
+MaxHorses: 5
+SummonDelay: 10
+CancelSummonOnMove: true
+Commands:
+  AllowBuyCommand: true
+  AllowDeleteCommand: true
+  AllowDismissCommand: true
+  AllowHealCommand: true
+  AllowListCommand: true
+  AllowRenameCommand: true
+  AllowSummonCommand: true
+  AllowTypesCommand: true
+Renaming:
+  BlockRenamingOnWildHorses: false
+  AllowClaimingWithNameTag: false
+  AllowRenamingFromNameTag: false
+  RequireNameTagForRenaming: false
+  MaxHorseNameLength: 20
+Damage:
+  ProtectedDamageCauses: []
+  InvincibleHorses: false
+  ProtectFromOwner: true
+  ProtectFromPlayers: true
+  ProtectFromMobs: true
+  OnlyHurtHorseIfOwnerCanBeHurt: true
+  TransferDamageToRider: true
+  DeleteHorseOnDeath: false
+  DeleteHorseOnDeathByPlayer: false
+  KeepEquipmentOnDeath: false
+  DeathCooldown: 120
+max-attributes:
+  health: 5000
+  speed: 50000
+  jump-strength: 50000
+Types:
+  White:
+    DisplayName: White
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Creamy:
+    DisplayName: Creamy
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Chestnut:
+    DisplayName: Chestnut
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Brown:
+    DisplayName: Brown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Black:
+    DisplayName: Black
+    DefaultHealth: 10.0
+    DefaultMaxHealth: 10.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Gray:
+    DisplayName: Gray
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  DarkBrown:
+    DisplayName: DarkBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeWhite:
+    DisplayName: BlazeWhite
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeCreamy:
+    DisplayName: BlazeCreamy
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeChestnut:
+    DisplayName: BlazeChestnut
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeBrown:
+    DisplayName: BlazeBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeBlack:
+    DisplayName: BlazeBlack
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeGray:
+    DisplayName: BlazeGray
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  BlazeDarkBrown:
+    DisplayName: BlazeDarkBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintWhite:
+    DisplayName: PaintWhite
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintCreamy:
+    DisplayName: PaintCreamy
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintChestnut:
+    DisplayName: PaintChestnut
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintBrown:
+    DisplayName: PaintBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintBlack:
+    DisplayName: PaintBlack
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintGray:
+    DisplayName: PaintGray
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  PaintDarkBrown:
+    DisplayName: PaintDarkBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardWhite:
+    DisplayName: LeopardWhite
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardCreamy:
+    DisplayName: LeopardCreamy
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardChestnut:
+    DisplayName: LeopardChestnut
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardBrown:
+    DisplayName: LeopardBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardBlack:
+    DisplayName: LeopardBlack
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardGray:
+    DisplayName: LeopardGray
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  LeopardDarkBrown:
+    DisplayName: LeopardDarkBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyWhite:
+    DisplayName: SootyWhite
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyCreamy:
+    DisplayName: SootyCreamy
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyChestnut:
+    DisplayName: SootyChestnut
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyBrown:
+    DisplayName: SootyBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyBlack:
+    DisplayName: SootyBlack
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyGray:
+    DisplayName: SootyGray
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  SootyDarkBrown:
+    DisplayName: SootyDarkBrown
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Donkey:
+    DisplayName: Donkey
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.925
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Mule:
+    DisplayName: Mule
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Undead:
+    DisplayName: Undead
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
+  Skeleton:
+    DisplayName: Skeleton
+    DefaultHealth: 12.0
+    DefaultMaxHealth: 12.0
+    Speed: 0.225
+    JumpStrength: 0.7
+    MaxHpUpgrade: 30.0
+    ProtectFromDeletionOnDeath: false
+    BuyCost: 10.0
+    WildClaimCost: 0.0
+    HealCost: 10.0
+    HpUpgradeCost: 10.0
+    RenameCost: 5.0
