@@ -54,7 +54,6 @@ public class InteractListener extends ForgeListener {
                     @Override
                     public void run() {
                         if(playerHorse != null) {
-                            playerHorse.getStable().getPlayerOwner().sendMessage("[DEBUG] Updating attributes for " + horse.getType() + " which should trigger trails if valid. ");
                             playerHorse.updateAttributes();
                         }
                     }
@@ -80,7 +79,6 @@ public class InteractListener extends ForgeListener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    horseData.getStable().getPlayerOwner().sendMessage("[DEBUG] Updating attributes for " + horseData.getHorse().getType() + " which should trigger trails if valid. ");
                     horseData.updateAttributes();
                 }
             }.runTaskLater(plugin, 1);

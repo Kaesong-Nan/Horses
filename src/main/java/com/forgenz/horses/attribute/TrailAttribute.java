@@ -19,7 +19,6 @@ public class TrailAttribute extends Attribute implements BuffAttribute {
         if(playerHorse == null || voxTrail == null) {
             return;
         }
-        playerHorse.getStable().getPlayerOwner().sendMessage("[DEBUG] Adding trail: " + voxTrail);
         voxTrail.addToEntity(playerHorse.getHorse(), Horses.getInstance());
     }
     
@@ -28,7 +27,6 @@ public class TrailAttribute extends Attribute implements BuffAttribute {
         if(playerHorse == null || voxTrail == null) {
             return;
         }
-        playerHorse.getStable().getPlayerOwner().sendMessage("[DEBUG] Removing trail: " + voxTrail);
         voxTrail.remove(playerHorse.getHorse(), Horses.getInstance());
     }
     

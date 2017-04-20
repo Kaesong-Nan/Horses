@@ -449,7 +449,6 @@ public class PlayerHorse
         new BukkitRunnable() {
             @Override
             public void run() {
-                getStable().getPlayerOwner().sendMessage("[DEBUG] Updating attributes for " + getHorse().getType() + " which should trigger trails if valid. ");
                 updateAttributes();
             }
         }.runTaskLater(plugin, 1);
@@ -500,7 +499,6 @@ public class PlayerHorse
             currentAttributes.remove(attribute);
         }
         if(attribute instanceof BuffAttribute) {
-            getStable().getPlayerOwner().sendMessage("[DEBUG] Removing buff: " + attribute);
             ((BuffAttribute) attribute).onRemove(this);
         }
     }
@@ -511,7 +509,6 @@ public class PlayerHorse
         }
         currentAttributes.add(attribute);
         if(attribute instanceof BuffAttribute) {
-            getStable().getPlayerOwner().sendMessage("[DEBUG] Applying buff: " + attribute);
             ((BuffAttribute) attribute).onAdd(this);
         }
     }
