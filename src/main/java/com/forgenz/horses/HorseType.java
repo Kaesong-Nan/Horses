@@ -2,144 +2,117 @@ package com.forgenz.horses;
 
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Color;
+import org.bukkit.entity.Horse.Style;
 import org.bukkit.entity.Horse.Variant;
 
 import static org.bukkit.entity.Horse.Variant.*;
 
+@SuppressWarnings({"unused", "deprecation"})
 public enum HorseType {
-    White(Horse.Color.WHITE),
-    Creamy(Horse.Color.CREAMY),
-    Chestnut(Horse.Color.CHESTNUT),
-    Brown(Horse.Color.BROWN),
-    Black(Horse.Color.BLACK),
-    Gray(Horse.Color.GRAY),
-    DarkBrown(Horse.Color.DARK_BROWN),
-
-    BlazeWhite(Horse.Color.WHITE, Horse.Style.WHITE),
-    BlazeCreamy(Horse.Color.CREAMY, Horse.Style.WHITE),
-    BlazeChestnut(Horse.Color.CHESTNUT, Horse.Style.WHITE),
-    BlazeBrown(Horse.Color.BROWN, Horse.Style.WHITE),
-    BlazeBlack(Horse.Color.BLACK, Horse.Style.WHITE),
-    BlazeGray(Horse.Color.GRAY, Horse.Style.WHITE),
-    BlazeDarkBrown(Horse.Color.DARK_BROWN, Horse.Style.WHITE),
-
-    PaintWhite(Horse.Color.WHITE, Horse.Style.WHITEFIELD),
-    PaintCreamy(Horse.Color.CREAMY, Horse.Style.WHITEFIELD),
-    PaintChestnut(Horse.Color.CHESTNUT, Horse.Style.WHITEFIELD),
-    PaintBrown(Horse.Color.BROWN, Horse.Style.WHITEFIELD),
-    PaintBlack(Horse.Color.BLACK, Horse.Style.WHITEFIELD),
-    PaintGray(Horse.Color.GRAY, Horse.Style.WHITEFIELD),
-    PaintDarkBrown(Horse.Color.DARK_BROWN, Horse.Style.WHITEFIELD),
-
-    LeopardWhite(Horse.Color.WHITE, Horse.Style.WHITE_DOTS),
-    LeopardCreamy(Horse.Color.CREAMY, Horse.Style.WHITE_DOTS),
-    LeopardChestnut(Horse.Color.CHESTNUT, Horse.Style.WHITE_DOTS),
-    LeopardBrown(Horse.Color.BROWN, Horse.Style.WHITE_DOTS),
-    LeopardBlack(Horse.Color.BLACK, Horse.Style.WHITE_DOTS),
-    LeopardGray(Horse.Color.GRAY, Horse.Style.WHITE_DOTS),
-    LeopardDarkBrown(Horse.Color.DARK_BROWN, Horse.Style.WHITE_DOTS),
-
-    SootyWhite(Horse.Color.WHITE, Horse.Style.BLACK_DOTS),
-    SootyCreamy(Horse.Color.CREAMY, Horse.Style.BLACK_DOTS),
-    SootyChestnut(Horse.Color.CHESTNUT, Horse.Style.BLACK_DOTS),
-    SootyBrown(Horse.Color.BROWN, Horse.Style.BLACK_DOTS),
-    SootyBlack(Horse.Color.BLACK, Horse.Style.BLACK_DOTS),
-    SootyGray(Horse.Color.GRAY, Horse.Style.BLACK_DOTS),
-    SootyDarkBrown(Horse.Color.DARK_BROWN, Horse.Style.BLACK_DOTS),
-
+    White(Color.WHITE),
+    Creamy(Color.CREAMY),
+    Chestnut(Color.CHESTNUT),
+    Brown(Color.BROWN),
+    Black(Color.BLACK),
+    Gray(Color.GRAY),
+    DarkBrown(Color.DARK_BROWN),
+    
+    BlazeWhite(Color.WHITE, Style.WHITE),
+    BlazeCreamy(Color.CREAMY, Style.WHITE),
+    BlazeChestnut(Color.CHESTNUT, Style.WHITE),
+    BlazeBrown(Color.BROWN, Style.WHITE),
+    BlazeBlack(Color.BLACK, Style.WHITE),
+    BlazeGray(Color.GRAY, Style.WHITE),
+    BlazeDarkBrown(Color.DARK_BROWN, Style.WHITE),
+    
+    PaintWhite(Color.WHITE, Style.WHITEFIELD),
+    PaintCreamy(Color.CREAMY, Style.WHITEFIELD),
+    PaintChestnut(Color.CHESTNUT, Style.WHITEFIELD),
+    PaintBrown(Color.BROWN, Style.WHITEFIELD),
+    PaintBlack(Color.BLACK, Style.WHITEFIELD),
+    PaintGray(Color.GRAY, Style.WHITEFIELD),
+    PaintDarkBrown(Color.DARK_BROWN, Style.WHITEFIELD),
+    
+    LeopardWhite(Color.WHITE, Style.WHITE_DOTS),
+    LeopardCreamy(Color.CREAMY, Style.WHITE_DOTS),
+    LeopardChestnut(Color.CHESTNUT, Style.WHITE_DOTS),
+    LeopardBrown(Color.BROWN, Style.WHITE_DOTS),
+    LeopardBlack(Color.BLACK, Style.WHITE_DOTS),
+    LeopardGray(Color.GRAY, Style.WHITE_DOTS),
+    LeopardDarkBrown(Color.DARK_BROWN, Style.WHITE_DOTS),
+    
+    SootyWhite(Color.WHITE, Style.BLACK_DOTS),
+    SootyCreamy(Color.CREAMY, Style.BLACK_DOTS),
+    SootyChestnut(Color.CHESTNUT, Style.BLACK_DOTS),
+    SootyBrown(Color.BROWN, Style.BLACK_DOTS),
+    SootyBlack(Color.BLACK, Style.BLACK_DOTS),
+    SootyGray(Color.GRAY, Style.BLACK_DOTS),
+    SootyDarkBrown(Color.DARK_BROWN, Style.BLACK_DOTS),
+    
     Donkey(DONKEY),
     Mule(MULE),
     Undead(UNDEAD_HORSE),
     Skeleton(SKELETON_HORSE);
-
+    
     private final String permission;
     private final String tamePermission;
     private final Variant variant;
-    private final Horse.Color colour;
-    private final Horse.Style style;
-
-    private HorseType(Variant variant) {
+    private final Color colour;
+    private final Style style;
+    
+    HorseType(final Variant variant) {
         this(variant, null, null);
     }
-
-
-    private HorseType(Horse.Color colour) {
-        this(HORSE, colour, Horse.Style.NONE);
+    
+    HorseType(final Color colour) {
+        this(HORSE, colour, Style.NONE);
     }
-
-    private HorseType(Horse.Color colour, Horse.Style style) {
+    
+    HorseType(final Color colour, final Style style) {
         this(HORSE, colour, style);
     }
-
-    private HorseType(Variant variant, Horse.Color colour, Horse.Style style) {
+    
+    HorseType(final Variant variant, final Color colour, final Style style) {
         this.variant = variant;
         this.colour = colour;
         this.style = style;
-
-        this.permission = ("horses.type." + toString().toLowerCase());
-        this.tamePermission = ("horses.tame."+toString().toLowerCase());
+        
+        permission = "horses.type." + toString().toLowerCase();
+        tamePermission = "horses.tame." + toString().toLowerCase();
     }
-
-    public String getTamePermission() {
-        return tamePermission;
-    }
-
-    public Variant getVariant() {
-        return this.variant;
-    }
-
-    public Horse.Color getColour() {
-        return this.colour;
-    }
-
-    public Horse.Style getStyle() {
-        return this.style;
-    }
-
-    public String getPermission() {
-        return this.permission;
-    }
-
-    public void setHorseType(AbstractHorse horse2) {
-        //horse.setVariant(getVariant());
-
-        if (horse2 instanceof Horse) {
-            Horse horse = (Horse) horse2;
-            if (getColour() != null)
-                horse.setColor(getColour());
-            if (getStyle() != null)
-                horse.setStyle(getStyle());
-        }
-    }
-
+    
     public static HorseType closeValueOf(String like) {
         like = like.toLowerCase();
-
-        for (HorseType type : values()) {
-            if (type.toString().toLowerCase().startsWith(like)) {
+        
+        for(final HorseType type : values()) {
+            if(type.toString().toLowerCase().startsWith(like)) {
                 return type;
             }
         }
         return null;
     }
-
-    public static HorseType exactValueOf(String typeStr) {
-        for (HorseType type : values()) {
-            if (type.toString().equalsIgnoreCase(typeStr)) {
+    
+    public static HorseType exactValueOf(final String typeStr) {
+        for(final HorseType type : values()) {
+            if(type.toString().equalsIgnoreCase(typeStr)) {
                 return type;
             }
         }
         return null;
     }
-
-    public static HorseType valueOf(Horse horse) {
-        switch (horse.getVariant()) {
+    
+    public static HorseType valueOf(final AbstractHorse horseIn) {
+        switch(horseIn.getVariant()) {
             case HORSE:
-                HorseType[] a = values();
-                Horse.Color colour = horse.getColor();
-                for (int i = horse.getStyle().ordinal() * Horse.Color.values().length; i < a.length; i++)
-                    if (a[i].getColour() == colour)
+                final Horse horse = (Horse) horseIn;
+                final HorseType[] a = values();
+                final Color colour = horse.getColor();
+                for(int i = horse.getStyle().ordinal() * Color.values().length; i < a.length; i++) {
+                    if(a[i].getColour() == colour) {
                         return a[i];
+                    }
+                }
             case DONKEY:
                 return Donkey;
             case MULE:
@@ -150,5 +123,39 @@ public enum HorseType {
                 return Skeleton;
         }
         return null;
+    }
+    
+    public String getTamePermission() {
+        return tamePermission;
+    }
+    
+    public Variant getVariant() {
+        return variant;
+    }
+    
+    public Color getColour() {
+        return colour;
+    }
+    
+    public Style getStyle() {
+        return style;
+    }
+    
+    public String getPermission() {
+        return permission;
+    }
+    
+    public void setHorseType(final AbstractHorse horse2) {
+        //horse.setVariant(getVariant());
+        
+        if(horse2 instanceof Horse) {
+            final Horse horse = (Horse) horse2;
+            if(getColour() != null) {
+                horse.setColor(getColour());
+            }
+            if(getStyle() != null) {
+                horse.setStyle(getStyle());
+            }
+        }
     }
 }

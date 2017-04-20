@@ -5,73 +5,76 @@ import com.forgenz.horses.attribute.*;
 import com.forgenz.horses.util.HorseSpeedUtil;
 import com.voxmc.voxlib.util.VoxEffects;
 import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse.Variant;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
+@SuppressWarnings({"deprecation", "WeakerAccess", "unused"})
 public class PlayerHorse
         implements ForgeCore {
+    public static final Pattern FORMATTING_CODES_PATTERN = Pattern.compile("&[klmnor]", Pattern.CASE_INSENSITIVE);
     private static final String OWNERSHIP_METADATA_KEY = "Horses.Ownership";
     private static final Location cacheLoc = new Location(null, 0.0D, 0.0D, 0.0D);
-
-    public static final Pattern FORMATTING_CODES_PATTERN = Pattern.compile("&[klmnor]", 2);
     private final Horses plugin;
     private final Stable stable;
+    private final HorseType type;
+    private final ArrayList<ItemStack> inventory = new ArrayList<>();
+    @SuppressWarnings("PublicField")
+    public Set<Attribute> currentAttributes = new HashSet<>();
     private int id;
     private AbstractHorse horse;
-    private long lastDeath = 0L;
+    private long lastDeath;
     private String name;
     private String displayName;
-    private HorseType type;
     private double maxHealth;
     private double health;
     private double speed;
     private double jumpStrength;
-    private boolean hasChest = false;
+    private boolean hasChest;
     private boolean renamable;
-
-    private final ArrayList<ItemStack> inventory = new ArrayList();
-
-    public PlayerHorse(Horses plugin, Stable stable, String name, HorseType type, double maxHealth, double health, double speed, double jumpStrength, Horse horse) {
-        this(plugin, stable, name, type, maxHealth, health, speed, jumpStrength, horse,-1);
+    
+    public PlayerHorse(final Horses plugin, final Stable stable, final String name, final HorseType type, final double maxHealth, final double health, final double speed, final double jumpStrength, final AbstractHorse horse) {
+        this(plugin, stable, name, type, maxHealth, health, speed, jumpStrength, horse, -1);
     }
-
-    public PlayerHorse(Horses plugin, Stable stable, String name, HorseType type, double maxHealth, double health, double speed, double jumpStrength, Horse horse, int id) {
+    
+    public PlayerHorse(final Horses plugin, final Stable stable, final String name, final HorseType type, double maxHealth, double health, final double speed, double jumpStrength, final AbstractHorse horse, final int id) {
         this.plugin = plugin;
         this.stable = stable;
         this.id = id;
-
-        this.displayName = ChatColor.translateAlternateColorCodes('&', name).replaceAll("&", "").replaceAll(" ", "_").replaceAll("\\.", "");
-        this.name = ChatColor.stripColor(this.displayName);
-
+        
+        displayName = ChatColor.translateAlternateColorCodes('&', name).replaceAll("&", "").replaceAll(" ", "_").replaceAll("\\.", "");
+        this.name = ChatColor.stripColor(displayName);
+        
         this.type = type;
-
-        if (health <= 0.0D)
+        
+        if(health <= 0.0D) {
             health = getPlugin().getHorsesConfig().getHorseTypeConfig(null, type).horseHp;
-        if ((health > maxHealth) || (maxHealth <= 0.0D)) {
+        }
+        if(health > maxHealth || maxHealth <= 0.0D) {
             maxHealth = health;
         }
         this.maxHealth = maxHealth;
         this.health = health;
-
-        if ((getPlugin().getHorsesConfig().fixZeroJumpStrength) && (jumpStrength <= 0.0D)) {
+        
+        if(getPlugin().getHorsesConfig().fixZeroJumpStrength && jumpStrength <= 0.0D) {
             jumpStrength = 0.7D;
         }
         this.speed = speed;
         this.jumpStrength = jumpStrength;
-
+        
         this.horse = horse;
-
-        if (this.horse != null) {
+        
+        if(this.horse != null) {
             getMaxHealth();
             getHealth();
             hasChest();
@@ -82,511 +85,518 @@ public class PlayerHorse
             horse.remove();
         }
     }
-
+    
+    private static int getLevelFromLore(final String loreI) {
+        return Integer.parseInt(loreI.split(" ")[0].replace("+", ""));
+    }
+    
+    @SuppressWarnings("TypeMayBeWeakened")
+    public static PlayerHorse getFromEntity(final AbstractHorse horse) {
+        for(final MetadataValue meta : horse.getMetadata("Horses.Ownership")) {
+            if(meta.getOwningPlugin() == Horses.getInstance() && meta.value().getClass() == PlayerHorse.class) {
+                return (PlayerHorse) meta.value();
+            }
+        }
+        
+        return null;
+    }
+    
     public Stable getStable() {
-        return this.stable;
+        return stable;
     }
-
+    
     public Horses getPlugin() {
-        return this.plugin;
+        return plugin;
     }
-
+    
     public boolean isRenamable() {
         return renamable && !plugin.getHorsesConfig().getBlackListNames().contains(name);
     }
-
-    public void setRenamable(boolean renamable) {
+    
+    public void setRenamable(final boolean renamable) {
         this.renamable = renamable;
     }
-
+    
     public AbstractHorse getHorse() {
-        return this.horse;
+        return horse;
     }
-
+    
     public String getName() {
-        return this.name;
+        return name;
     }
-
+    
     public String getDisplayName() {
-        return this.displayName;
+        return displayName;
     }
-
+    
     public HorseType getType() {
-        return this.type;
+        return type;
     }
-
+    
     public long getLastDeath() {
-        return this.lastDeath;
+        return lastDeath;
     }
-
-    public void setLastDeath(long time) {
-        this.lastDeath = time;
+    
+    public void setLastDeath(final long time) {
+        lastDeath = time;
     }
-
+    
     public int getId() {
-        return this.id;
+        return id;
     }
-
-    public void setId(int id) {
+    
+    public void setId(final int id) {
         this.id = id;
     }
-
+    
     public double getMaxHealth() {
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.maxHealth = this.horse.getMaxHealth();
+        if(horse != null && horse.isValid()) {
+            maxHealth = horse.getMaxHealth();
         }
-        return this.maxHealth;
+        return maxHealth;
     }
-
+    
+    public void setMaxHealth(final double amount) {
+        maxHealth = amount;
+        
+        if(horse != null) {
+            horse.setMaxHealth(amount);
+        }
+    }
+    
     public double getHealth() {
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.health = this.horse.getHealth();
+        if(horse != null && horse.isValid()) {
+            health = horse.getHealth();
         }
-        return this.health;
+        return health;
     }
-
-    public double getHealEstimate(float amount) {
-        if (getMaxHealth() < getHealth() + amount) {
-            return this.maxHealth - this.health;
+    
+    public void setHealth(final double amount) {
+        health = amount;
+        
+        if(horse != null) {
+            horse.setHealth(amount);
         }
-
+    }
+    
+    public double getHealEstimate(final float amount) {
+        if(getMaxHealth() < getHealth() + amount) {
+            return maxHealth - health;
+        }
+        
         return amount;
     }
-
-    public void setMaxHealth(double amount) {
-        this.maxHealth = amount;
-
-        if (this.horse != null) {
-            this.horse.setMaxHealth(amount);
-        }
-    }
-
-    public void setHealth(double amount) {
-        this.health = amount;
-
-        if (this.horse != null) {
-            this.horse.setHealth(amount);
-        }
-    }
-
+    
+    @SuppressWarnings("UnusedReturnValue")
     public double addHealth(double amount) {
-        if (getMaxHealth() < getHealth() + amount) {
-            amount = this.maxHealth - this.health;
+        if(getMaxHealth() < getHealth() + amount) {
+            amount = maxHealth - health;
         }
-
-        this.health += amount;
-
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.horse.setHealth(this.health);
+        
+        health += amount;
+        
+        if(horse != null && horse.isValid()) {
+            horse.setHealth(health);
         }
-
+        
         return amount;
     }
-
-
-    public void addMaxHealth(double amount) {
-        this.maxHealth = (getMaxHealth() + amount);
-        this.health = (getHealth() + amount);
-
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.horse.setMaxHealth(this.maxHealth);
-            this.horse.setHealth(this.health);
+    
+    public void addMaxHealth(final double amount) {
+        maxHealth = getMaxHealth() + amount;
+        health = getHealth() + amount;
+        
+        if(horse != null && horse.isValid()) {
+            horse.setMaxHealth(maxHealth);
+            horse.setHealth(health);
         }
     }
-
+    
     public double getJumpStrength() {
-        if (this.horse != null) {
-            this.jumpStrength = this.horse.getJumpStrength();
+        if(horse != null) {
+            jumpStrength = horse.getJumpStrength();
         }
-
-        return this.jumpStrength;
+        
+        return jumpStrength;
     }
-
-    public double getSpeed() {
-        if (this.horse != null) {
-            this.speed = HorseSpeedUtil.getHorseSpeed(this.horse);
-        }
-
-        return this.speed;
-    }
-
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    public void setJumpStrength(double jumpStrength) {
+    
+    public void setJumpStrength(final double jumpStrength) {
         this.jumpStrength = jumpStrength;
     }
-
-    public void setSaddle(ItemStack saddle) {
+    
+    public double getSpeed() {
+        if(horse != null) {
+            speed = HorseSpeedUtil.getHorseSpeed(horse);
+        }
+        
+        return speed;
+    }
+    
+    public void setSpeed(final double speed) {
+        this.speed = speed;
+    }
+    
+    public void setSaddle(final ItemStack saddle) {
         setItem(0, saddle);
     }
-
-    public void setHasChest(boolean hasChest) {
-        if ((this.type != HorseType.Mule) && (this.type != HorseType.Donkey)) {
+    
+    public void setHasChest(final boolean hasChest) {
+        if(type != HorseType.Mule && type != HorseType.Donkey) {
             return;
         }
         this.hasChest = hasChest;
     }
-
+    
     public boolean hasChest() {
-        if ((this.type != HorseType.Mule) && (this.type != HorseType.Donkey)) {
+        if(type != HorseType.Mule && type != HorseType.Donkey) {
             return false;
         }
-        if (this.horse != null && this.horse instanceof ChestedHorse) {
-            this.hasChest = ((ChestedHorse)this.horse).isCarryingChest();
+        if(horse != null && horse instanceof ChestedHorse) {
+            hasChest = ((ChestedHorse) horse).isCarryingChest();
         }
-
-        return this.hasChest;
+        
+        return hasChest;
     }
-
-    public void setArmour(Material material) {
+    
+    public void setArmour(final Material material) {
         setItem(1, new ItemStack(material));
     }
-    public void setArmour(ItemStack itemStack) {
+    
+    public void setArmour(final ItemStack itemStack) {
         setItem(1, itemStack);
     }
-
-    public ItemStack getItem(int i) {
+    
+    public ItemStack getItem(final int i) {
         try {
-            if ((this.inventory.size() <= i) && (i < 0)) {
+            if(inventory.size() <= i && i < 0) {
                 return null;
             }
-            if (this.horse != null) {
-                ItemStack item = this.horse.getInventory().getItem(i);
-                if ((item != null) && (item.getType() == Material.AIR)) {
+            if(horse != null) {
+                ItemStack item = horse.getInventory().getItem(i);
+                if(item != null && item.getType() == Material.AIR) {
                     item = null;
                 }
-                this.inventory.set(i, item);
+                inventory.set(i, item);
             }
-
-            return (ItemStack) this.inventory.get(i);
-        }catch (Exception e) {
+            
+            return inventory.get(i);
+        } catch(final Exception e) {
             return null;
         }
     }
-
-    public void setItem(int i, ItemStack item) {
-        if (i < 0) {
+    
+    public void setItem(final int i, final ItemStack item) {
+        if(i < 0) {
             return;
         }
-        if (this.inventory.size() <= i) {
-            for (int index = this.inventory.size(); index < i; index++) {
-                this.inventory.add(null);
+        if(inventory.size() <= i) {
+            for(int index = inventory.size(); index < i; index++) {
+                inventory.add(null);
             }
-            this.inventory.add(item);
-        }else {
-            this.inventory.set(i,item);
+            inventory.add(item);
+        } else {
+            inventory.set(i, item);
         }
     }
-
-    public void setItems(ItemStack[] items) {
-        this.inventory.clear();
-        this.inventory.ensureCapacity(items.length);
-
-        for (ItemStack item : items)
-            this.inventory.add(item);
-    }
-
+    
     public ItemStack[] getItems() {
-        if (this.horse != null) {
-            ItemStack[] items = this.horse.getInventory().getContents();
-
-            this.inventory.clear();
-            for (ItemStack item : items) {
-                this.inventory.add(item);
-            }
+        if(horse != null) {
+            final ItemStack[] items = horse.getInventory().getContents();
+            
+            inventory.clear();
+            Collections.addAll(inventory, items);
             return items;
         }
-
-        return (ItemStack[]) this.inventory.toArray(new ItemStack[this.inventory.size()]);
+        
+        return inventory.toArray(new ItemStack[inventory.size()]);
     }
-
+    
+    public void setItems(final ItemStack[] items) {
+        inventory.clear();
+        inventory.ensureCapacity(items.length);
+        
+        Collections.addAll(inventory, items);
+    }
+    
     public void removeHorse() {
-        if (this.horse != null) {
-            if (!this.horse.isDead()) {
-                this.health = this.horse.getHealth();
+        if(horse != null) {
+            if(!horse.isDead()) {
+                health = horse.getHealth();
             }
-
+            
             getItems();
             hasChest();
             clearAttributes();
-            if (this.horse.isDead()) {
-                if (getPlugin().getHorsesConfig().getPermConfig(getStable().getPlayerOwner()).keepEquipmentOnDeath) {
-                    this.horse.getInventory().clear();
-                    if (this.horse instanceof ChestedHorse) {
-                        ((ChestedHorse)this.horse).setCarryingChest(false);
+            if(horse.isDead()) {
+                if(getPlugin().getHorsesConfig().getPermConfig(getStable().getPlayerOwner()).keepEquipmentOnDeath) {
+                    horse.getInventory().clear();
+                    if(horse instanceof ChestedHorse) {
+                        ((ChestedHorse) horse).setCarryingChest(false);
                     }
                 } else {
-                    this.inventory.clear();
-                    this.hasChest = false;
+                    inventory.clear();
+                    hasChest = false;
                 }
             }
-            if (this.horse.getLocation() != null) {
-                playSound(this.horse.getLocation());
-                VoxEffects voxEffects = plugin.getHorsesConfig().getDismisEffects();
-                if (voxEffects != null) {
+            if(horse.getLocation() != null) {
+                playSound(horse.getLocation());
+                final VoxEffects voxEffects = plugin.getHorsesConfig().getDismisEffects();
+                if(voxEffects != null) {
                     voxEffects.play(horse.getLocation());
                 }
             }
-            this.horse.remove();
-
-            this.stable.removeActiveHorse(this);
-
-            this.horse.removeMetadata("Horses.Ownership", getPlugin());
-            this.horse = null;
+            horse.remove();
+            
+            stable.removeActiveHorse(this);
+            
+            horse.removeMetadata("Horses.Ownership", getPlugin());
+            horse = null;
         }
-
+        
         saveChanges();
     }
-
-    public boolean spawnHorse(Player player) {
-        if (!player.getName().equals(getStable().getOwner())) {
+    
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean spawnHorse(final Player player) {
+        if(!player.getName().equals(getStable().getOwner())) {
             return false;
         }
-
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.horse.teleport(player);
+        
+        if(horse != null && horse.isValid()) {
+            horse.teleport(player);
             return true;
         }
-
-        if (getStable().getActiveHorse() != null) {
+        
+        if(getStable().getActiveHorse() != null) {
             getStable().getActiveHorse().removeHorse();
         }
-
-        Location loc = player.getLocation(cacheLoc);
-
-        if (getPlugin().getHorsesConfig().getPermConfig(getStable().getPlayerOwner()).bypassSpawnProtection) {
+        
+        final Location loc = player.getLocation(cacheLoc);
+        
+        if(getPlugin().getHorsesConfig().getPermConfig(getStable().getPlayerOwner()).bypassSpawnProtection) {
             getPlugin().getHorseSpawnListener().setSpawning();
         }
-        AbstractHorse horse;
-        if (getType() == HorseType.Skeleton) {
+        final AbstractHorse horse;
+        if(getType() == HorseType.Skeleton) {
             horse = (AbstractHorse) loc.getWorld().spawnEntity(loc, EntityType.SKELETON_HORSE);
-        }else if (getType() == HorseType.Undead) {
+        } else if(getType() == HorseType.Undead) {
             horse = (AbstractHorse) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE_HORSE);
-        }else if (getType() == HorseType.Mule) {
+        } else if(getType() == HorseType.Mule) {
             horse = (ChestedHorse) loc.getWorld().spawnEntity(loc, EntityType.MULE);
-        }else if (getType() == HorseType.Donkey) {
+        } else if(getType() == HorseType.Donkey) {
             horse = (ChestedHorse) loc.getWorld().spawnEntity(loc, EntityType.MULE);
-        }else {
+        } else {
             horse = (AbstractHorse) loc.getWorld().spawnEntity(loc, EntityType.HORSE);
         }
         horse.setRemoveWhenFarAway(false);
-
+        
         getType().setHorseType(horse);
-
+        
         horse.setAdult();
         horse.setTamed(true);
         horse.setOwner(getStable().getPlayerOwner());
-
-        if (hasChest() && horse instanceof ChestedHorse) {
-            ChestedHorse chestedHorse = (ChestedHorse) horse;
+        
+        if(hasChest() && horse instanceof ChestedHorse) {
+            final ChestedHorse chestedHorse = (ChestedHorse) horse;
             chestedHorse.setCarryingChest(true);
         }
-        Inventory inv = horse.getInventory();
-
-        ItemStack[] items = inv.getContents();
-        for (int i = 2; i < items.length; i++) {
-            if (i >= this.inventory.size())
+        final Inventory inv = horse.getInventory();
+        
+        final ItemStack[] items = inv.getContents();
+        for(int i = 2; i < items.length; i++) {
+            if(i >= inventory.size()) {
                 items[i] = null;
-            else
-                items[i] = ((ItemStack) this.inventory.get(i));
+            } else {
+                items[i] = inventory.get(i);
+            }
         }
         inv.setContents(items);
-
-
-        if (horse instanceof Horse) {
-            Horse horse2 = (Horse) horse;
-            Inventory horseInventory = horse2.getInventory();
-            if (horseInventory != null) {
-                if (this.inventory.size() > 0)
-                    horseInventory.setItem(0,(ItemStack) this.inventory.get(0));
-                if (this.inventory.size() > 1) {
-                    horseInventory.setItem(1,(ItemStack) this.inventory.get(1));
+        
+        if(horse instanceof AbstractHorse) {
+            @SuppressWarnings("TypeMayBeWeakened") final AbstractHorse horse2 = (AbstractHorse) horse;
+            final Inventory horseInventory = horse2.getInventory();
+            if(horseInventory != null) {
+                if(!inventory.isEmpty()) {
+                    horseInventory.setItem(0, inventory.get(0));
+                }
+                if(inventory.size() > 1) {
+                    horseInventory.setItem(1, inventory.get(1));
                 }
             }
         }
-
-
-        horse.setCustomName(this.displayName);
+        
+        horse.setCustomName(displayName);
         horse.setCustomNameVisible(true);
-
-        horse.setMaxHealth(this.maxHealth);
-        if (this.health > maxHealth) {
+        
+        horse.setMaxHealth(maxHealth);
+        if(health > maxHealth) {
             health = maxHealth;
         }
-        horse.setHealth(this.health);
+        horse.setHealth(health);
         HorseSpeedUtil.setHorseSpeed(horse, getSpeed());
         horse.setJumpStrength(getJumpStrength());
-
+        
         horse.setTarget(player);
         horse.setMetadata("Horses.Ownership", new FixedMetadataValue(getPlugin(), this));
         playSound(loc);
-        VoxEffects voxEffects = plugin.getHorsesConfig().getSpawnEffects();
-        if (voxEffects != null) {
+        final VoxEffects voxEffects = plugin.getHorsesConfig().getSpawnEffects();
+        if(voxEffects != null) {
             voxEffects.play(horse.getLocation());
         }
         getStable().setActiveHorse(this);
-
+        
         this.horse = horse;
-        new BukkitRunnable(){
+        new BukkitRunnable() {
             @Override
             public void run() {
+                getStable().getPlayerOwner().sendMessage("[DEBUG] Updating attributes for " + getHorse().getType() + " which should trigger trails if valid. ");
                 updateAttributes();
             }
-        }.runTaskLater(plugin,1);
-
-
+        }.runTaskLater(plugin, 1);
+        
         return true;
-
     }
-    public void playSound(Location loc) {
-        World world = loc.getWorld();
-        Horse.Variant variant = type.getVariant();
-        if (variant == Horse.Variant.DONKEY) {
-            world.playSound(loc,Sound.ENTITY_DONKEY_AMBIENT,1,1);
-        }else if (variant == Horse.Variant.SKELETON_HORSE) {
-            world.playSound(loc,Sound.ENTITY_SKELETON_HORSE_AMBIENT,1,1);
-        }else if (variant == Horse.Variant.UNDEAD_HORSE) {
-            world.playSound(loc,Sound.ENTITY_ZOMBIE_HORSE_AMBIENT,1,1);
-        }else {
-            world.playSound(loc,Sound.ENTITY_HORSE_AMBIENT,1,1);
+    
+    public void playSound(final Location loc) {
+        final World world = loc.getWorld();
+        final Variant variant = type.getVariant();
+        if(variant == Variant.DONKEY) {
+            world.playSound(loc, Sound.ENTITY_DONKEY_AMBIENT, 1, 1);
+        } else if(variant == Variant.SKELETON_HORSE) {
+            world.playSound(loc, Sound.ENTITY_SKELETON_HORSE_AMBIENT, 1, 1);
+        } else if(variant == Variant.UNDEAD_HORSE) {
+            world.playSound(loc, Sound.ENTITY_ZOMBIE_HORSE_AMBIENT, 1, 1);
+        } else {
+            world.playSound(loc, Sound.ENTITY_HORSE_AMBIENT, 1, 1);
         }
     }
-
+    
     public void saveChanges() {
         getPlugin().getHorseDatabase().saveHorse(this);
     }
-
+    
     public boolean deleteHorse() {
-        if (this.horse != null) {
-            this.horse.remove();
+        if(horse != null) {
+            horse.remove();
             getStable().removeActiveHorse(this);
         }
-
-        return this.stable.deleteHorse(this);
+        
+        return stable.deleteHorse(this);
     }
-
-    public void rename(String name) {
-        this.displayName = ChatColor.translateAlternateColorCodes('&', name).replaceAll("&", "").replaceAll(" ", "_");
-        this.name = ChatColor.stripColor(this.displayName);
-
-        if ((this.horse != null) && (this.horse.isValid())) {
-            this.horse.setCustomName(this.displayName);
+    
+    public void rename(final String name) {
+        displayName = ChatColor.translateAlternateColorCodes('&', name).replaceAll("&", "").replaceAll(" ", "_");
+        this.name = ChatColor.stripColor(displayName);
+        
+        if(horse != null && horse.isValid()) {
+            horse.setCustomName(displayName);
         }
-
+        
         saveChanges();
     }
-    public Set<Attribute> currentAttributes = new HashSet<>();
-    public void removeAttribute(Attribute attribute) {
-        if (currentAttributes.contains(attribute)) {
+    
+    public void removeAttribute(final Attribute attribute) {
+        if(currentAttributes.contains(attribute)) {
             currentAttributes.remove(attribute);
         }
-        if (attribute instanceof BuffAttribute) {
+        if(attribute instanceof BuffAttribute) {
+            getStable().getPlayerOwner().sendMessage("[DEBUG] Removing buff: " + attribute);
             ((BuffAttribute) attribute).onRemove(this);
         }
     }
-    public void addAttribute(Attribute attribute) {
-        if (currentAttributes.contains(attribute)) {
+    
+    public void addAttribute(final Attribute attribute) {
+        if(currentAttributes.contains(attribute)) {
             return;
         }
         currentAttributes.add(attribute);
-        if (attribute instanceof BuffAttribute) {
+        if(attribute instanceof BuffAttribute) {
+            getStable().getPlayerOwner().sendMessage("[DEBUG] Applying buff: " + attribute);
             ((BuffAttribute) attribute).onAdd(this);
         }
     }
+    
     public void clearAttributes() {
-        for (Attribute attribute : new HashSet<>(currentAttributes)) {
+        for(final Attribute attribute : new HashSet<>(currentAttributes)) {
             removeAttribute(attribute);
         }
     }
-    public boolean hasAttribute(Attribute attribute) {
+    
+    public boolean hasAttribute(final Attribute attribute) {
         return currentAttributes.contains(attribute);
     }
+    
     public void adjustValuesToMax() {
-        double maxJump = Horses.getInstance().getHorsesConfig().getCheatMaxJump();
-        double maxSpeed = Horses.getInstance().getHorsesConfig().getCheatMaxSpeed();
-        double maxHealth = Horses.getInstance().getHorsesConfig().getCheatMaxHealth();
-        if (maxJump < this.jumpStrength || maxSpeed < this.speed || maxHealth < this.maxHealth) {
-            if (this.getHorse() != null) {
+        final double maxJump = Horses.getInstance().getHorsesConfig().getCheatMaxJump();
+        final double maxSpeed = Horses.getInstance().getHorsesConfig().getCheatMaxSpeed();
+        final double maxHealth = Horses.getInstance().getHorsesConfig().getCheatMaxHealth();
+        if(maxJump < jumpStrength || maxSpeed < speed || maxHealth < this.maxHealth) {
+            if(getHorse() != null) {
                 removeHorse();
             }
-            if (this.jumpStrength > maxJump) {
-                this.jumpStrength = maxJump;
+            if(jumpStrength > maxJump) {
+                jumpStrength = maxJump;
             }
-            if (this.speed > maxSpeed) {
-                this.speed = maxSpeed;
+            if(speed > maxSpeed) {
+                speed = maxSpeed;
             }
-            if (this.maxHealth > maxHealth) {
+            if(this.maxHealth > maxHealth) {
                 this.maxHealth = maxHealth;
-                if (this.health > this.maxHealth) {
-                    this.health = this.maxHealth;
+                if(health > this.maxHealth) {
+                    health = this.maxHealth;
                 }
             }
             saveChanges();
         }
     }
+    
     public void updateAttributes() {
-        if (getHorse() == null) {
+        if(getHorse() == null) {
             return;
         }
-        List<Attribute> attributes = new ArrayList<>();
-        Inventory inv = getHorse().getInventory();
-        ItemStack[] armor = {inv.getItem(0), inv.getItem(1)};
-        for (ItemStack itemStack : armor) {
-            if (itemStack != null && itemStack.getItemMeta() != null && itemStack.getItemMeta().hasLore()) {
-                for (String loreI : itemStack.getItemMeta().getLore()) {
+        final Collection<Attribute> attributes = new ArrayList<>();
+        final Inventory inv = getHorse().getInventory();
+        final ItemStack[] armor = {inv.getItem(0), inv.getItem(1)};
+        for(final ItemStack itemStack : armor) {
+            if(itemStack != null && itemStack.getItemMeta() != null && itemStack.getItemMeta().hasLore()) {
+                for(String loreI : itemStack.getItemMeta().getLore()) {
                     loreI = ChatColor.stripColor(loreI);
                     Attribute attribute = null;
-                    if (loreI.contains("Trail: ")) {
-                        String trailName = loreI.replace("Trail: ","").trim().toLowerCase();
+                    if(loreI.contains("Trail: ")) {
+                        final String trailName = loreI.replace("Trail: ", "").trim().toLowerCase();
                         attribute = new TrailAttribute(Horses.getInstance().getHorsesConfig().getTrails().get(trailName));
-                    }else if (loreI.contains("Horse Speed")) {
-                        int level = getLevelFromLore(loreI);
-                        double speedAmount = level * plugin.getHorsesConfig().getSpeedPerLevel();
+                    } else if(loreI.contains("Horse Speed")) {
+                        final int level = getLevelFromLore(loreI);
+                        final double speedAmount = level * plugin.getHorsesConfig().getSpeedPerLevel();
                         attribute = new HorseSpeedAttribute(speedAmount);
-                    }else if (loreI.contains("Horse Jump")) {
-                        int level = getLevelFromLore(loreI);
-                        double jumpAmount = level * plugin.getHorsesConfig().getJumpPerLevel();
+                    } else if(loreI.contains("Horse Jump")) {
+                        final int level = getLevelFromLore(loreI);
+                        final double jumpAmount = level * plugin.getHorsesConfig().getJumpPerLevel();
                         attribute = new HorseJumpAttribute(jumpAmount);
-                    }else if (loreI.contains("Horse Health")) {
-                        int level = getLevelFromLore(loreI);
+                    } else if(loreI.contains("Horse Health")) {
+                        final int level = getLevelFromLore(loreI);
                         attribute = new HorseHealthAttribute(level);
                     }
-                    if (attribute != null) {
+                    if(attribute != null) {
                         attributes.add(attribute);
                     }
                 }
             }
         }
-        for (Attribute attribute : attributes) {
-            if (!hasAttribute(attribute)) {
+        for(final Attribute attribute : attributes) {
+            if(!hasAttribute(attribute)) {
                 addAttribute(attribute);
             }
         }
-        for (Attribute attribute : new HashSet<>(currentAttributes)) {
-            if (!attributes.contains(attribute)) {
+        for(final Attribute attribute : new HashSet<>(currentAttributes)) {
+            if(!attributes.contains(attribute)) {
                 removeAttribute(attribute);
             }
         }
-        if (!attributes.isEmpty()) {
+        if(!attributes.isEmpty()) {
             getHorse().setBreed(false);
-        }else if (getHorse().isAdult()) {
+        } else if(getHorse().isAdult()) {
             getHorse().setBreed(true);
         }
-    }
-    private static int getLevelFromLore(String loreI) {
-        return Integer.parseInt(loreI.split(" ")[0].replace("+",""));
-    }
-
-    public static PlayerHorse getFromEntity(Horse horse) {
-        for (MetadataValue meta : horse.getMetadata("Horses.Ownership")) {
-            if ((meta.getOwningPlugin() == Horses.getInstance()) && (meta.value().getClass() == PlayerHorse.class)) {
-                return (PlayerHorse) meta.value();
-            }
-        }
-
-        return null;
     }
 }

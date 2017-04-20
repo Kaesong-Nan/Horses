@@ -7,46 +7,49 @@ import com.voxmc.voxlib.util.VoxTrail;
 /**
  * Created by john on 8/7/15.
  */
-public class TrailAttribute extends Attribute implements BuffAttribute{
+public class TrailAttribute extends Attribute implements BuffAttribute {
     private VoxTrail voxTrail;
-
+    
     public TrailAttribute(VoxTrail voxTrail) {
         this.voxTrail = voxTrail;
     }
-
+    
     @Override
     public void onAdd(PlayerHorse playerHorse) {
-        if (playerHorse == null || voxTrail == null) {
+        if(playerHorse == null || voxTrail == null) {
             return;
         }
+        playerHorse.getStable().getPlayerOwner().sendMessage("[DEBUG] Adding trail: " + voxTrail);
         voxTrail.addToEntity(playerHorse.getHorse(), Horses.getInstance());
     }
-
+    
     @Override
     public void onRemove(PlayerHorse playerHorse) {
-        if (playerHorse == null || voxTrail == null) {
+        if(playerHorse == null || voxTrail == null) {
             return;
         }
-        voxTrail.remove(playerHorse.getHorse(),Horses.getInstance());
+        playerHorse.getStable().getPlayerOwner().sendMessage("[DEBUG] Removing trail: " + voxTrail);
+        voxTrail.remove(playerHorse.getHorse(), Horses.getInstance());
     }
-
-
-
+    
     public VoxTrail getVoxTrail() {
         return voxTrail;
     }
-
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        
         TrailAttribute that = (TrailAttribute) o;
-
+        
         return !(voxTrail != null ? !voxTrail.equals(that.voxTrail) : that.voxTrail != null);
-
     }
-
+    
     @Override
     public int hashCode() {
         return voxTrail != null ? voxTrail.hashCode() : 0;
