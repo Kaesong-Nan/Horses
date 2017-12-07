@@ -433,8 +433,9 @@ public class PlayerHorse
             health = maxHealth;
         }
         horse.setHealth(health);
-        HorseSpeedUtil.setHorseSpeed(horse, getSpeed());
-        horse.setJumpStrength(getJumpStrength());
+        HorseSpeedUtil.setHorseSpeed(horse, getSpeed() > plugin.getHorsesConfig().getCheatMaxJump() ? plugin.getHorsesConfig().getCheatMaxJump() : getSpeed());
+        
+        horse.setJumpStrength(getJumpStrength() > plugin.getHorsesConfig().getCheatMaxJump() ? plugin.getHorsesConfig().getCheatMaxJump() : getJumpStrength());
         
         horse.setTarget(player);
         horse.setMetadata("Horses.Ownership", new FixedMetadataValue(getPlugin(), this));
