@@ -42,11 +42,11 @@ public class GiveCommand extends ForgeCommand {
             return getPlugin().getHorsesConfig().getBardings().get(name).getItemStack();
         }
         if (name.equalsIgnoreCase("diamond")) {
-            return new ItemStack(Material.DIAMOND_BARDING);
+            return new ItemStack(Material.DIAMOND_HORSE_ARMOR);
         }else if (name.equalsIgnoreCase("gold")) {
-            return new ItemStack(Material.GOLD_BARDING);
+            return new ItemStack(Material.GOLDEN_HORSE_ARMOR);
         }else if (name.equalsIgnoreCase("iron")) {
-            return new ItemStack(Material.IRON_BARDING);
+            return new ItemStack(Material.IRON_HORSE_ARMOR);
         }else {
             return null;
         }

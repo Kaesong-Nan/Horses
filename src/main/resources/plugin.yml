@@ -5,6 +5,8 @@ author: ShadowDog007
 website: 'http://dev.bukkit.org/bukkit-plugins/horse-stables/'
 softdepend: [Vault, NoCheatPlus]
 
+api-version: 1.13
+
 commands:
   horses:
     description: Virtual Stables System main command

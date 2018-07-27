@@ -10,99 +10,100 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 
-public final class ForgeLocale
-        implements ForgeCore {
-    public static final String LOCALE_CONFIG_LOCATION = String.format("locale%s%s.yml", new Object[]{Character.valueOf(File.separatorChar), "%s"});
-    private ForgeMessage[] messages;
+@SuppressWarnings("unused")
+public final class ForgeLocale implements ForgeCore {
+    @SuppressWarnings("WeakerAccess")
+    public static final String LOCALE_CONFIG_LOCATION = String.format("locale%s%s.yml", File.separatorChar, "%s");
     private final ForgePlugin plugin;
-
-    public ForgeLocale(ForgePlugin plugin) {
+    private ForgeMessage[] messages;
+    
+    public ForgeLocale(final ForgePlugin plugin) {
         this.plugin = plugin;
     }
-
-    public final void registerEnumMessages(Class<? extends Enum<?>> clazz) {
-        Enum[] constants = (Enum[]) clazz.getEnumConstants();
-
-        if (!(constants[0] instanceof ForgeLocaleEnum)) {
+    
+    public final void registerEnumMessages(final Class<? extends Enum<?>> clazz) {
+        final Enum[] constants = clazz.getEnumConstants();
+        
+        if(!(constants[0] instanceof ForgeLocaleEnum)) {
             throw new IllegalArgumentException("Enum must implement ForgeLocaleEnum");
         }
-
-        ForgeLocaleEnum[] locale = (ForgeLocaleEnum[]) constants;
-
-        this.messages = new ForgeMessage[locale.length];
-
-        for (int i = 0; i < this.messages.length; i++) {
-            this.messages[i] = locale[i].getMessage();
+        
+        final ForgeLocaleEnum[] locale = (ForgeLocaleEnum[]) constants;
+    
+        messages = new ForgeMessage[locale.length];
+        
+        for(int i = 0; i < messages.length; i++) {
+            messages[i] = locale[i].getMessage();
         }
     }
-
+    
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public final void updateMessages() {
-        String localeStr = (String) BukkitConfigUtil.getAndSet(this.plugin.getConfig(), "locale", String.class, "en");
-
-        File locale = new File(this.plugin.getDataFolder(), String.format(LOCALE_CONFIG_LOCATION, new Object[]{localeStr}));
-
-        FileConfiguration cfg = new YamlConfiguration();
+        final String localeStr = BukkitConfigUtil.getAndSet(plugin.getConfig(), "locale", String.class, "en");
+        
+        final File locale = new File(plugin.getDataFolder(), String.format(LOCALE_CONFIG_LOCATION, localeStr));
+        
+        final FileConfiguration cfg = new YamlConfiguration();
         try {
-            if (!locale.exists()) {
+            if(!locale.exists()) {
                 try {
-                    InputStream fin = this.plugin.getResource(localeStr);
-
-                    if (fin != null) {
-                        cfg.load(fin);
+                    final InputStream fin = plugin.getResource(localeStr);
+                    
+                    if(fin != null) {
+                        cfg.load(new InputStreamReader(fin));
                     }
-
+                    
                     cfg.save(locale);
-                } catch (InvalidConfigurationException e) {
-                    this.plugin.log(Level.WARNING, "Locale embeded in plugin is invalid", e);
+                } catch(final InvalidConfigurationException e) {
+                    plugin.log(Level.WARNING, "Locale embeded in plugin is invalid", e);
                     return;
                 }
             } else {
                 try {
                     cfg.load(locale);
-                } catch (IllegalArgumentException e) {
-                } catch (InvalidConfigurationException e) {
-                    this.plugin.log(Level.WARNING, "Your Locale file %s is invalid", e, new Object[]{locale.getName()});
+                } catch(final IllegalArgumentException ignored) {
+                } catch(final InvalidConfigurationException e) {
+                    plugin.log(Level.WARNING, "Your Locale file %s is invalid", e, new Object[] {locale.getName()});
                     locale.delete();
                     updateMessages();
                     return;
                 }
-
-                InputStream fin = this.plugin.getResource(localeStr);
-
-                if (fin != null) {
-                    FileConfiguration defaults = new YamlConfiguration();
-                    defaults.load(fin);
+                
+                final InputStream fin = plugin.getResource(localeStr);
+                
+                if(fin != null) {
+                    final FileConfiguration defaults = new YamlConfiguration();
+                    defaults.load(new InputStreamReader(fin));
                     cfg.addDefaults(defaults);
                     cfg.options().copyDefaults(true);
                 }
-
             }
-
-        } catch (IOException e) {
+        } catch(final IOException e) {
             e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            this.plugin.log(Level.WARNING, "Locale embeded in plugin is invalid", e);
+        } catch(final InvalidConfigurationException e) {
+            plugin.log(Level.WARNING, "Locale embeded in plugin is invalid", e);
             return;
         }
-
-        for (ForgeMessage m : this.messages) {
+        
+        for(final ForgeMessage m : messages) {
             m.updateMessage(cfg);
         }
-
+        
         try {
             cfg.save(locale);
-        } catch (IOException e) {
-            getPlugin().log(Level.WARNING, "Failed to save locale file %s", e, new Object[]{locale.getName()});
+        } catch(final IOException e) {
+            getPlugin().log(Level.WARNING, "Failed to save locale file %s", e, new Object[] {locale.getName()});
         }
     }
-
-    public final String getMessage(Enum<?> instance) {
-        return this.messages[instance.ordinal()].getMessage();
+    
+    public final String getMessage(final Enum<?> instance) {
+        return messages[instance.ordinal()].getMessage();
     }
-
+    
     public ForgePlugin getPlugin() {
-        return this.plugin;
+        return plugin;
     }
 }
