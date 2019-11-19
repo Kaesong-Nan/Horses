@@ -25,11 +25,11 @@ public class DamageListener extends ForgeListener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntityType() != EntityType.HORSE) {
+        if (event.getEntityType() != EntityType.HORSE && event.getEntityType() != EntityType.SKELETON_HORSE && event.getEntityType() != EntityType.ZOMBIE_HORSE && event.getEntityType() != EntityType.DONKEY && event.getEntityType() != EntityType.MULE) {
             return;
         }
 
-        Horse horse = (Horse) event.getEntity();
+        AbstractHorse horse = (AbstractHorse) event.getEntity();
 
         PlayerHorse horseData = PlayerHorse.getFromEntity(horse);
 
@@ -100,13 +100,13 @@ public class DamageListener extends ForgeListener {
         }
     }
 
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event, Horse horse, PlayerHorse horseData, HorsesPermissionConfig cfg) {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event, AbstractHorse horse, PlayerHorse horseData, HorsesPermissionConfig cfg) {
         Player player = getPlayerDamager(event.getDamager());
 
         if (player != null) {
             if ((cfg.protectFromOwner) && (horseData.getStable().getOwner().equals(player.getName()))) {
                 event.setCancelled(true);
-            } else if (cfg.protectFromPlayers) {
+            } else if (cfg.protectFromPlayers && !horseData.getStable().getOwner().equals(player.getName())) {
                 Messages.Event_Damage_Error_CantHurtOthersHorses.sendMessage(player);
                 event.setCancelled(true);
             }

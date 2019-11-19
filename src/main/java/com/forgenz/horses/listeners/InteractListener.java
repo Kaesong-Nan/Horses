@@ -27,7 +27,7 @@ public class InteractListener extends ForgeListener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEntityEvent event) {
         final EntityType type = event.getRightClicked().getType();
-        if(type != EntityType.HORSE && type != EntityType.DONKEY && type != EntityType.MULE) {
+        if(type != EntityType.HORSE && type != EntityType.SKELETON_HORSE && type != EntityType.ZOMBIE_HORSE && type != EntityType.DONKEY && type != EntityType.MULE) {
             return;
         }
         

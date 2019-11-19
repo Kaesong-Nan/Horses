@@ -9,6 +9,7 @@ import com.forgenz.horses.config.HorsesConfig;
 import com.forgenz.horses.config.HorsesPermissionConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -24,28 +25,18 @@ public class HorseDeathListener extends ForgeListener {
         register();
     }
     
-    private void debug(String msg) {
-        final Player zombiemold = Bukkit.getPlayer("Zombiemold");
-        if(zombiemold != null) {
-            zombiemold.sendMessage(ChatColor.RED + "HORSES DEBUG: " + ChatColor.GRAY + msg);
-        }
-    }
-    
     @SuppressWarnings("TypeMayBeWeakened")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onHorseDie(final EntityDeathEvent event) {
-        if(event.getEntityType() != EntityType.HORSE) {
-            debug("Entity is not horse");
+        if(event.getEntityType() != EntityType.HORSE && event.getEntityType() != EntityType.SKELETON_HORSE && event.getEntityType() != EntityType.ZOMBIE_HORSE && event.getEntityType() != EntityType.DONKEY && event.getEntityType() != EntityType.MULE) {
             return;
         }
-        debug("Handling horse death");
-    
-        final Horse horse = (Horse) event.getEntity();
+
+        final AbstractHorse horse = (AbstractHorse) event.getEntity();
     
         final PlayerHorse horseData = PlayerHorse.getFromEntity(horse);
     
         if(horseData == null) {
-            debug("Horse data is null");
             return;
         }
         
@@ -69,22 +60,21 @@ public class HorseDeathListener extends ForgeListener {
             if(delete) {
                 Messages.Event_Death_HorseDiedAndWasDeleted.sendMessage(Bukkit.getPlayerExact(horseData.getStable().getOwner()), new Object[] {horseData.getName()});
                 horseData.deleteHorse();
-                debug("Deleting horse on death");
                 return;
             }
         }
         
         event.setDroppedExp(0);
-        event.getDrops().clear();
-        debug("Supposedly cleared drops");
-        
+        if (pcfg.keepEquipmentOnDeath) {
+            event.getDrops().clear();
+        }
+
         horseData.removeHorse();
         
         horseData.setMaxHealth(typeCfg.horseMaxHp);
         horseData.setHealth(typeCfg.horseHp);
         
         horseData.setLastDeath(System.currentTimeMillis());
-        debug("All done handling");
     }
     
     public Horses getPlugin() {

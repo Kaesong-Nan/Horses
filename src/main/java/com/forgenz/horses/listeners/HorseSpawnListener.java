@@ -25,7 +25,7 @@ public class HorseSpawnListener extends ForgeListener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onHorseSpawn(CreatureSpawnEvent event) {
-        if (event.getEntityType() != EntityType.HORSE) {
+        if (event.getEntityType() != EntityType.HORSE && event.getEntityType() != EntityType.SKELETON_HORSE && event.getEntityType() != EntityType.ZOMBIE_HORSE && event.getEntityType() != EntityType.DONKEY && event.getEntityType() != EntityType.MULE) {
             return;
         }
         if (this.spawning) {
@@ -37,7 +37,7 @@ public class HorseSpawnListener extends ForgeListener {
     @EventHandler(ignoreCancelled = true)
     public void chunkUnloadEvent(ChunkUnloadEvent event) {
         for (Entity e : event.getChunk().getEntities()) {
-            if (e.getType() == EntityType.HORSE) {
+            if (e.getType() == EntityType.HORSE || e.getType() == EntityType.SKELETON_HORSE || e.getType() == EntityType.ZOMBIE_HORSE || e.getType() == EntityType.DONKEY || e.getType() == EntityType.MULE) {
                 if (e.hasMetadata("Horses.Ownership")) {
                     PlayerHorse playerHorse = (PlayerHorse) e.getMetadata("Horses.Ownership").get(0).value();
                     getPlugin().getLogger().info("Removed un chunk loaded horse");
