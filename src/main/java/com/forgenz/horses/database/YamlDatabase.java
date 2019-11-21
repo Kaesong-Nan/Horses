@@ -5,6 +5,7 @@ import com.forgenz.horses.HorseType;
 import com.forgenz.horses.Horses;
 import com.forgenz.horses.PlayerHorse;
 import com.forgenz.horses.Stable;
+import com.forgenz.horses.config.HorsesConfig;
 import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.data.User;
 import org.bukkit.Bukkit;
@@ -41,7 +42,9 @@ public class YamlDatabase extends HorseDatabase {
     }
 
     private File getPlayersConfigFile(OfflinePlayer player, String stableGroup) {
-        if (!Bukkit.getOnlineMode()) {
+        HorsesConfig horsesConfig = getPlugin().getHorsesConfig();
+
+        if (!horsesConfig.useUuidBasedConfigFiles) {
             return getPlayersConfigFile(player.getName(), stableGroup);
         }
 

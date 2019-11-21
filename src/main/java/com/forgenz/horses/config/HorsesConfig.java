@@ -25,6 +25,7 @@ public class HorsesConfig extends AbstractConfig {
     public final boolean forceEnglishCharacters;
     public final boolean fixZeroJumpStrength;
     public final Pattern rejectedHorseNamePattern;
+    public final boolean useUuidBasedConfigFiles;
     private final HorsesWorldConfig globalCfg;
     private final Map<String, HorsesWorldConfig> worldConfigs;
     private final Map<String, VoxTrail> trails = new HashMap<>();
@@ -105,9 +106,11 @@ public class HorsesConfig extends AbstractConfig {
         } finally {
             rejectedHorseNamePattern = testPattern;
         }
-        
+
         fixZeroJumpStrength = getAndSet("FixZeroJumpStrength", Boolean.TRUE, Boolean.class);
-        
+
+        useUuidBasedConfigFiles = getAndSet("UseUuidBasedConfigFiles", Boolean.TRUE, Boolean.class);
+
         globalCfg = new HorsesWorldConfig(plugin, cfg);
         jumpPerLevel = cfg.getDouble("JumpPerLevel", 0);
         speedPerLevel = cfg.getDouble("SpeedPerLevel", 0);
