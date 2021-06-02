@@ -32,17 +32,19 @@ public class HorsesWorldConfig extends AbstractConfig {
 
         addResourseToHeader("header_world.txt");
 
-        LinkedHashMap permissionConfigs = new LinkedHashMap();
-        this.permissionConfigs = Collections.unmodifiableMap(permissionConfigs);
+        LinkedHashMap<String, HorsesPermissionConfig> permissionConfigs = new LinkedHashMap<>();
 
-        List permissions = cfg.getStringList("PermissionConfigs");
+        List<String> permissions = cfg.getStringList("PermissionConfigs");
         for (String permission : cfg.getStringList("PermissionConfigs")) {
             permissionConfigs.put(permission, new HorsesPermissionConfig(plugin, this, permission));
         }
+
+        this.permissionConfigs = Collections.unmodifiableMap(permissionConfigs);
+
         set(cfg, "PermissionConfigs", permissions);
 
         if (standalone)
-            this.stableGroup = ((String) getAndSet("StableGroup", "default", String.class)).toLowerCase();
+            this.stableGroup = getAndSet("StableGroup", "default", String.class).toLowerCase();
         else {
             this.stableGroup = "default";
         }
@@ -53,9 +55,9 @@ public class HorsesWorldConfig extends AbstractConfig {
 
     protected HorsesPermissionConfig getPermConfig(Player player) {
         if (player != null) {
-            for (Map.Entry e : this.permissionConfigs.entrySet()) {
-                if (player.hasPermission((String) e.getKey())) {
-                    return (HorsesPermissionConfig) e.getValue();
+            for (Map.Entry<String, HorsesPermissionConfig> e : this.permissionConfigs.entrySet()) {
+                if (player.hasPermission(e.getKey())) {
+                    return e.getValue();
                 }
             }
         }

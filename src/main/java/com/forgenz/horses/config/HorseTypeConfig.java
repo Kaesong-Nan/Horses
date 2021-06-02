@@ -8,7 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class HorseTypeConfig
         implements ForgeCore {
-    private ForgePlugin plugin;
+    private final ForgePlugin plugin;
     public final HorseType type;
     public final String displayName;
     public final double horseHp;
@@ -27,39 +27,39 @@ public class HorseTypeConfig
         this.plugin = plugin;
         this.type = type;
 
-        this.displayName = ((String) BukkitConfigUtil.getAndSet(cfg, "DisplayName", String.class, type.toString()));
+        this.displayName = BukkitConfigUtil.getAndSet(cfg, "DisplayName", String.class, type.toString());
 
-        double horseHp = ((Number) BukkitConfigUtil.getAndSet(cfg, "DefaultHealth", Number.class, Double.valueOf(12.0D))).doubleValue();
+        double horseHp = BukkitConfigUtil.getAndSet(cfg, "DefaultHealth", Number.class, 12.0D).doubleValue();
         if (horseHp < 0.0D) {
             horseHp = 12.0D;
-            BukkitConfigUtil.set(cfg, "DefaultHealth", Double.valueOf(horseHp));
+            BukkitConfigUtil.set(cfg, "DefaultHealth", horseHp);
         }
 
         this.horseHp = horseHp;
 
-        double horseMaxHp = ((Number) BukkitConfigUtil.getAndSet(cfg, "DefaultMaxHealth", Number.class, Double.valueOf(horseHp))).doubleValue();
+        double horseMaxHp = BukkitConfigUtil.getAndSet(cfg, "DefaultMaxHealth", Number.class, horseHp).doubleValue();
         if (horseMaxHp < 0.0D) {
             horseMaxHp = horseHp;
-            BukkitConfigUtil.set(cfg, "DefaultMaxHealth", Double.valueOf(horseMaxHp));
+            BukkitConfigUtil.set(cfg, "DefaultMaxHealth", horseMaxHp);
         } else if (horseHp > horseMaxHp) {
             horseMaxHp = horseHp;
-            BukkitConfigUtil.set(cfg, "DefaultMaxHealth", Double.valueOf(horseMaxHp));
+            BukkitConfigUtil.set(cfg, "DefaultMaxHealth", horseMaxHp);
         }
         this.horseMaxHp = horseMaxHp;
 
-        this.speed = ((Number) BukkitConfigUtil.getAndSet(cfg, "Speed", Number.class, Double.valueOf(0.225D))).doubleValue();
-        this.jumpStrength = ((Number) BukkitConfigUtil.getAndSet(cfg, "JumpStrength", Number.class, Double.valueOf(0.7D))).doubleValue();
+        this.speed = BukkitConfigUtil.getAndSet(cfg, "Speed", Number.class, 0.225D).doubleValue();
+        this.jumpStrength = BukkitConfigUtil.getAndSet(cfg, "JumpStrength", Number.class, 0.7D).doubleValue();
 
-        this.horseMaximumHpUpgrade = ((Number) BukkitConfigUtil.getAndSet(cfg, "MaxHpUpgrade", Number.class, Double.valueOf(30.0D))).doubleValue();
+        this.horseMaximumHpUpgrade = BukkitConfigUtil.getAndSet(cfg, "MaxHpUpgrade", Number.class, 30.0D).doubleValue();
 
-        this.protectFromDeletionOnDeath = ((Boolean) BukkitConfigUtil.getAndSet(cfg, "ProtectFromDeletionOnDeath", Boolean.class, Boolean.valueOf(false))).booleanValue();
+        this.protectFromDeletionOnDeath = BukkitConfigUtil.getAndSet(cfg, "ProtectFromDeletionOnDeath", Boolean.class, false);
 
         if (getPlugin().getEconomy() != null) {
-            this.buyCost = ((Number) BukkitConfigUtil.getAndSet(cfg, "BuyCost", Number.class, Double.valueOf(10.0D))).doubleValue();
-            this.wildClaimCost = ((Number) BukkitConfigUtil.getAndSet(cfg, "WildClaimCost", Number.class, Double.valueOf(0.0D))).doubleValue();
-            this.healCost = ((Number) BukkitConfigUtil.getAndSet(cfg, "HealCost", Number.class, Double.valueOf(10.0D))).doubleValue();
-            this.hpUpgradeCost = ((Number) BukkitConfigUtil.getAndSet(cfg, "HpUpgradeCost", Number.class, Double.valueOf(10.0D))).doubleValue();
-            this.renameCost = ((Number) BukkitConfigUtil.getAndSet(cfg, "RenameCost", Number.class, Double.valueOf(5.0D))).doubleValue();
+            this.buyCost = BukkitConfigUtil.getAndSet(cfg, "BuyCost", Number.class, 10.0D).doubleValue();
+            this.wildClaimCost = BukkitConfigUtil.getAndSet(cfg, "WildClaimCost", Number.class, 0.0D).doubleValue();
+            this.healCost = BukkitConfigUtil.getAndSet(cfg, "HealCost", Number.class, 10.0D).doubleValue();
+            this.hpUpgradeCost = BukkitConfigUtil.getAndSet(cfg, "HpUpgradeCost", Number.class, 10.0D).doubleValue();
+            this.renameCost = BukkitConfigUtil.getAndSet(cfg, "RenameCost", Number.class, 5.0D).doubleValue();
         } else {
             this.buyCost = (this.wildClaimCost = this.healCost = this.hpUpgradeCost = this.renameCost = 0.0D);
         }

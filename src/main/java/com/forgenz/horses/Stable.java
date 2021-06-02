@@ -82,14 +82,14 @@ public class Stable
         PlayerHorse bestMatch = null;
         
         synchronized(horses) {
-            final Iterator it = horses.iterator();
+            final Iterator<PlayerHorse> it = horses.iterator();
             
             name = name.toLowerCase();
             int length = 0;
             boolean startsWith = false;
             
             while(it.hasNext()) {
-                final PlayerHorse horse = (PlayerHorse) it.next();
+                final PlayerHorse horse = it.next();
                 
                 final String horseName = horse.getName().toLowerCase();
                 

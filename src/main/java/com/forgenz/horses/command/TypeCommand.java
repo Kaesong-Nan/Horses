@@ -22,10 +22,10 @@ public class TypeCommand extends ForgeCommand {
         registerAlias("t", false);
         registerPermission("horses.command.types");
 
-        registerArgument(new ForgeCommandArgument("^.+$", 0, true, new StringBuilder().append(ChatColor.RED).append("[Horses] This should never be seen").toString()));
+        registerArgument(new ForgeCommandArgument("^.+$", 0, true, ChatColor.RED + "[Horses] This should never be seen"));
 
         setAllowOp(true);
-        setArgumentString(String.format("[%s%s]", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Type}));
+        setArgumentString(String.format("[%s%s]", Messages.Misc_Words_Horse, Messages.Misc_Words_Type));
         setDescription(Messages.Command_Type_Description.toString());
     }
 
@@ -47,7 +47,9 @@ public class TypeCommand extends ForgeCommand {
             } else if ((player) && (!sender.hasPermission(cfg.type.getPermission()))) {
                 Messages.Command_Type_Error_NoPermForHorse.sendMessage(sender);
             } else {
-                sender.sendMessage(String.format((getPlugin().getEconomy() != null ? Messages.Command_Type_SingleTypeFormatEco : Messages.Command_Type_SingleTypeFormat).toString(), new Object[]{cfg.displayName, Double.valueOf(cfg.horseHp), Double.valueOf(cfg.horseMaxHp), Double.valueOf(cfg.jumpStrength), Double.valueOf(cfg.buyCost)}));
+                sender.sendMessage(String.format((getPlugin().getEconomy() != null ? Messages.Command_Type_SingleTypeFormatEco
+                                : Messages.Command_Type_SingleTypeFormat).toString(), cfg.displayName, cfg.horseHp,
+                        cfg.horseMaxHp, cfg.jumpStrength, cfg.buyCost));
             }
             return;
         }

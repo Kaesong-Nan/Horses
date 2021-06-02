@@ -10,15 +10,15 @@ import com.forgenz.horses.PlayerHorse;
 import com.forgenz.horses.Stable;
 import com.forgenz.horses.config.HorsesConfig;
 import com.forgenz.horses.config.HorsesPermissionConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.WeakHashMap;
 
 public class SummonCommand extends ForgeCommand {
-    private final WeakHashMap<Player, Long> summonTasks = new WeakHashMap();
+    private final WeakHashMap<Player, Long> summonTasks = new WeakHashMap<>();
     private final int pluginLoadCount;
     private final Location cacheLoc = new Location(null, 0.0D, 0.0D, 0.0D);
 
@@ -35,7 +35,7 @@ public class SummonCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("<%1$s%2$s>", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Name}));
+        setArgumentString(String.format("<%1$s%2$s>", Messages.Misc_Words_Horse, Messages.Misc_Words_Name));
         setDescription(Messages.Command_Summon_Description.toString());
     }
 
@@ -50,9 +50,9 @@ public class SummonCommand extends ForgeCommand {
             return;
         }
 
-        Long lastSummon = (Long) this.summonTasks.get(player);
+        Long lastSummon = this.summonTasks.get(player);
         if (lastSummon != null) {
-            if (System.currentTimeMillis() - lastSummon.longValue() > pcfg.summonDelay * 1000) {
+            if (System.currentTimeMillis() - lastSummon > pcfg.summonDelay * 1000) {
                 this.summonTasks.remove(player);
             } else {
                 Messages.Command_Summon_Error_AlreadySummoning.sendMessage(player);
@@ -83,7 +83,7 @@ public class SummonCommand extends ForgeCommand {
 
         long timeDiff = System.currentTimeMillis() - horse.getLastDeath();
         if (pcfg.deathCooldown > timeDiff) {
-            Messages.Command_Summon_Error_OnDeathCooldown.sendMessage(player, new Object[]{horse.getDisplayName(), Long.valueOf((pcfg.deathCooldown - timeDiff) / 1000L)});
+            Messages.Command_Summon_Error_OnDeathCooldown.sendMessage(player, new Object[]{horse.getDisplayName(), (pcfg.deathCooldown - timeDiff) / 1000L});
             return;
         }
 
@@ -99,29 +99,26 @@ public class SummonCommand extends ForgeCommand {
         } else {
             final long startTime = System.currentTimeMillis();
 
-            BukkitRunnable task = new BukkitRunnable() {
-                public void run() {
-                    Long storedStartTime = (Long) SummonCommand.this.summonTasks.get(player);
+            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+                Long storedStartTime = SummonCommand.this.summonTasks.get(player);
 
-                    if ((storedStartTime == null) || (storedStartTime.longValue() != startTime)) {
-                        return;
-                    }
-
-                    if (SummonCommand.this.pluginLoadCount != SummonCommand.this.getPlugin().getLoadCount()) {
-                        return;
-                    }
-
-                    SummonCommand.this.summonTasks.remove(player);
-
-                    if (player.isValid()) {
-                        horse.spawnHorse(player);
-                        Messages.Command_Summon_Success_SummonedHorse.sendMessage(player, new Object[]{horse.getDisplayName()});
-                    }
+                if ((storedStartTime == null) || (storedStartTime != startTime)) {
+                    return;
                 }
-            };
-            task.runTaskLater(getPlugin(), tickDelay);
-            this.summonTasks.put(player, Long.valueOf(startTime));
-            Messages.Command_Summon_Success_SummoningHorse.sendMessage(player, new Object[]{horse.getDisplayName(), Integer.valueOf(pcfg.summonDelay)});
+
+                if (SummonCommand.this.pluginLoadCount != SummonCommand.this.getPlugin().getLoadCount()) {
+                    return;
+                }
+
+                SummonCommand.this.summonTasks.remove(player);
+
+                if (player.isValid()) {
+                    horse.spawnHorse(player);
+                    Messages.Command_Summon_Success_SummonedHorse.sendMessage(player, new Object[]{horse.getDisplayName()});
+                }
+            }, tickDelay);
+            this.summonTasks.put(player, startTime);
+            Messages.Command_Summon_Success_SummoningHorse.sendMessage(player, new Object[]{horse.getDisplayName(), pcfg.summonDelay});
         }
     }
 

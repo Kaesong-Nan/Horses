@@ -11,7 +11,7 @@ public class ForgeComponentLogger extends Logger {
 
     protected ForgeComponentLogger(ForgePlugin plugin, Class<?> clazz, String name) {
         super(clazz.getCanonicalName(), null);
-        this.name = String.format("[%s] ", new Object[]{name});
+        this.name = String.format("[%s] ", name);
         setParent(plugin.getLogger());
         setLevel(Level.ALL);
     }

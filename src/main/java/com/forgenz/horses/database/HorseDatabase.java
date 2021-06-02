@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
 public abstract class HorseDatabase
         implements ForgeCore {
     public static final String DEFAULT_GROUP = "default";
-    protected static final Pattern COLOUR_CHAR_REPLACE = Pattern.compile(Character.toString('\u00A7'), 16);
+    protected static final Pattern COLOUR_CHAR_REPLACE = Pattern.compile(Character.toString('\u00A7'), Pattern.LITERAL);
     private final Horses plugin;
     private final HorseDatabaseStorageType dbType;
-    private final HashMap<String, Stable> playerStables = new HashMap();
+    private final HashMap<String, Stable> playerStables = new HashMap<>();
 
     public HorseDatabase(Horses plugin, HorseDatabaseStorageType dbType) {
         this.plugin = plugin;
@@ -50,9 +50,7 @@ public abstract class HorseDatabase
         HorseDatabase db = null;
         try {
             db = type.create(getPlugin(), false);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        } catch (InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         if (db == null) {
@@ -66,7 +64,7 @@ public abstract class HorseDatabase
     }
 
     public Stable getPlayersStable(Player player, boolean load) {
-        Stable stable = (Stable) this.playerStables.get(player.getName());
+        Stable stable = this.playerStables.get(player.getName());
         String stableGroup = getPlugin().getHorsesConfig().getStableGroup(player.getWorld());
 
         if ((stable != null) && (!stableGroup.equals(stable.getGroup()))) {
@@ -84,7 +82,7 @@ public abstract class HorseDatabase
     }
 
     public void saveAll() {
-        for (Stable stable : (Stable[]) this.playerStables.values().toArray(new Stable[this.playerStables.size()])) {
+        for (Stable stable : this.playerStables.values().toArray(new Stable[0])) {
             unload(stable);
         }
     }

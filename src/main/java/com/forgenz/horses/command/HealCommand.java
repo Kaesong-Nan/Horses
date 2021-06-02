@@ -25,7 +25,7 @@ public class HealCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("[%s]", new Object[]{Messages.Misc_Words_Amount}));
+        setArgumentString(String.format("[%s]", Messages.Misc_Words_Amount));
         setDescription(Messages.Command_Heal_Description.toString());
     }
 
@@ -52,7 +52,7 @@ public class HealCommand extends ForgeCommand {
             return;
         }
 
-        int healAmount = Integer.valueOf(args.getArg(0)).intValue();
+        int healAmount = Integer.parseInt(args.getArg(0));
         double actualHealAmount = horse.getHealEstimate(healAmount);
 
         if (getPlugin().getEconomy() != null) {
@@ -60,16 +60,16 @@ public class HealCommand extends ForgeCommand {
 
             double cost = cfg.healCost * actualHealAmount;
 
-            EconomyResponse result = getPlugin().getEconomy().withdrawPlayer(player.getName(), cost);
+            EconomyResponse result = getPlugin().getEconomy().withdrawPlayer(player, cost);
 
             if (!result.transactionSuccess()) {
-                Messages.Command_Heal_Error_CantAffordHeal.sendMessage(player, new Object[]{Double.valueOf(actualHealAmount), Double.valueOf(cost)});
+                Messages.Command_Heal_Error_CantAffordHeal.sendMessage(player, new Object[]{actualHealAmount, cost});
                 return;
             }
 
-            Messages.Command_Heal_Success_HealedForCost.sendMessage(player, new Object[]{horse.getDisplayName(), Double.valueOf(actualHealAmount), Double.valueOf(cost)});
+            Messages.Command_Heal_Success_HealedForCost.sendMessage(player, new Object[]{horse.getDisplayName(), actualHealAmount, cost});
         } else {
-            Messages.Command_Heal_Success_HealedWithoutCost.sendMessage(player, new Object[]{horse.getDisplayName(), Double.valueOf(actualHealAmount)});
+            Messages.Command_Heal_Success_HealedWithoutCost.sendMessage(player, new Object[]{horse.getDisplayName(), actualHealAmount});
         }
 
         horse.addHealth(actualHealAmount);

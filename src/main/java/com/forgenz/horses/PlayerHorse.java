@@ -413,7 +413,7 @@ public class PlayerHorse
         inv.setContents(items);
         
         if(horse instanceof AbstractHorse) {
-            @SuppressWarnings("TypeMayBeWeakened") final AbstractHorse horse2 = (AbstractHorse) horse;
+            @SuppressWarnings("TypeMayBeWeakened") final AbstractHorse horse2 = horse;
             final Inventory horseInventory = horse2.getInventory();
             if(horseInventory != null) {
                 if(!inventory.isEmpty()) {
@@ -496,9 +496,7 @@ public class PlayerHorse
     }
     
     public void removeAttribute(final Attribute attribute) {
-        if(currentAttributes.contains(attribute)) {
-            currentAttributes.remove(attribute);
-        }
+        currentAttributes.remove(attribute);
         if(attribute instanceof BuffAttribute) {
             ((BuffAttribute) attribute).onRemove(this);
         }

@@ -15,7 +15,7 @@ import java.util.logging.Level;
 /**
  * Created by john on 7/29/15.
  */
-public class ConvertHorsesCommand extends ForgeCommand{
+public class ConvertHorsesCommand extends ForgeCommand {
     public ConvertHorsesCommand(ForgePlugin plugin) {
         super(plugin);
 
@@ -31,7 +31,7 @@ public class ConvertHorsesCommand extends ForgeCommand{
     protected void onCommand(CommandSender paramCommandSender, ForgeArgs paramForgeArgs) {
         HorseDatabase database = getPlugin().getHorseDatabase();
         if (database.getType() != HorseDatabaseStorageType.YAML) {
-            paramCommandSender.sendMessage(ChatColor.RED +"Must be yaml db");
+            paramCommandSender.sendMessage(ChatColor.RED + "Must be yaml db");
             return;
         }
         YamlDatabase yamlDb = (YamlDatabase) database;
@@ -45,6 +45,7 @@ public class ConvertHorsesCommand extends ForgeCommand{
         }
         paramCommandSender.sendMessage("Fixed");
     }
+
     public Horses getPlugin() {
         return (Horses) super.getPlugin();
     }

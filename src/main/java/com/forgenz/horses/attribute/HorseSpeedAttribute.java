@@ -3,13 +3,12 @@ package com.forgenz.horses.attribute;
 import com.forgenz.horses.PlayerHorse;
 import com.forgenz.horses.util.HorseSpeedUtil;
 import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.Horse;
 
 /**
  * Created by john on 8/7/15.
  */
 public class HorseSpeedAttribute extends Attribute implements BuffAttribute {
-    private double speedChange;
+    private final double speedChange;
 
     public HorseSpeedAttribute(double speedChange) {
         this.speedChange = speedChange;

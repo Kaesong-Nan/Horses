@@ -5,7 +5,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class BukkitConfigUtil {
@@ -13,8 +12,7 @@ public class BukkitConfigUtil {
         YamlConfiguration cfg = new YamlConfiguration();
         try {
             cfg.load(file);
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } catch (InvalidConfigurationException e) {
             file.renameTo(new File(file.getPath() + ".broken"));
         }

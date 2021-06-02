@@ -19,7 +19,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -34,11 +33,74 @@ public class YamlDatabase extends HorseDatabase {
         super(plugin, HorseDatabaseStorageType.YAML);
     }
 
-    private File getPlayersConfigFile(String player, String stableGroup) {
-        if (stableGroup.equals("default")) {
-            return new File(getPlugin().getDataFolder(), String.format(PLAYER_DATA_LOCATION, new Object[]{player}));
+    public static PlayerHorse configToHorse(Stable stable, ConfigurationSection horseSect, Horses plugin) {
+        HorseType type = HorseType.exactValueOf(horseSect.getString("type", HorseType.White.toString()));
+        long lastDeath = horseSect.getLong("lastdeath") * 1000L;
+        double maxHealth = horseSect.getDouble("maxhealth");
+        double health = horseSect.getDouble("health");
+        double speed = horseSect.getDouble("speed", 0.225D);
+        double jumpStrength = horseSect.getDouble("jumpstrength", 0.7D);
+        boolean renameable = true;
+        if (horseSect.contains("renameable")) {
+            renameable = horseSect.getBoolean("renameable");
         }
-        return new File(getPlugin().getDataFolder(), String.format(GROUPED_PLAYER_DATA_LOCATION, new Object[]{stableGroup, player}));
+        boolean hasChest = ((type == HorseType.Mule) || (type == HorseType.Donkey)) && horseSect.getBoolean("chest", false);
+
+        ItemStack saddle = null;
+        if (horseSect.contains("saddle")) {
+            if (horseSect.isBoolean("saddle")) {
+                if (horseSect.getBoolean("saddle")) {
+                    saddle = new ItemStack(Material.SADDLE);
+                }
+            } else {
+                saddle = horseSect.getItemStack("saddle");
+            }
+        }
+
+        ItemStack armour = null;
+        if (horseSect.contains("armour")) {
+            if (horseSect.isString("armour")) {
+                armour = new ItemStack(Objects.requireNonNull(Material.getMaterial(Objects.requireNonNull(horseSect.getString("armour", "AIR")))));
+            } else {
+                armour = horseSect.getItemStack("armour");
+            }
+        }
+
+        ArrayList<ItemStack> items = new ArrayList<>();
+
+        for (Map<?, ?> itemMap : horseSect.getMapList("inventory")) {
+            int slot;
+            try {
+                slot = (Integer) itemMap.get("slot");
+            } catch (NullPointerException e) {
+                plugin.log(Level.SEVERE, "Player '%s' data file is corrupt: Inventory slot number was missing", e, new Object[]{stable.getOwner()});
+                continue;
+            } catch (ClassCastException e) {
+                plugin.log(Level.SEVERE, "Player '%s' data file is corrupt: Inventory slot number was not a number", e, new Object[]{stable.getOwner()});
+                continue;
+            }
+
+            ItemStack item = ItemStack.deserialize((Map<String, Object>) itemMap);
+
+            while (items.size() <= slot) {
+                items.add(null);
+            }
+            items.set(slot, item);
+        }
+
+        PlayerHorse horseData = new PlayerHorse(plugin, stable, horseSect.getName(), type, maxHealth, health, speed, jumpStrength, null);
+        horseData.setLastDeath(lastDeath);
+        horseData.setRenamable(renameable);
+
+        horseData.setItems(items.toArray(new ItemStack[0]));
+        if (saddle != null)
+            horseData.setSaddle(saddle);
+        if (armour != null)
+            horseData.setArmour(armour);
+        horseData.setHasChest(hasChest);
+
+        stable.addHorse(horseData);
+        return horseData;
     }
 
     private File getPlayersConfigFile(OfflinePlayer player, String stableGroup) {
@@ -63,24 +125,74 @@ public class YamlDatabase extends HorseDatabase {
         return uuidFile;
     }
 
+    public static void saveHorseToSection(ConfigurationSection sect, PlayerHorse horse) {
+        String colourCodedDisplayName = COLOUR_CHAR_REPLACE.matcher(horse.getDisplayName()).replaceAll("&");
+        ConfigurationSection horseSect = BukkitConfigUtil.getAndSetConfigurationSection(sect, colourCodedDisplayName);
+
+        horseSect.set("type", horse.getType().toString());
+        horseSect.set("lastdeath", horse.getLastDeath() / 1000L);
+        horseSect.set("maxhealth", horse.getMaxHealth());
+        horseSect.set("health", horse.getHealth());
+        horseSect.set("speed", horse.getSpeed());
+        horseSect.set("jumpstrength", horse.getJumpStrength());
+        if ((horse.getType() == HorseType.Mule) || (horse.getType() == HorseType.Donkey)) {
+            horseSect.set("chest", horse.hasChest());
+        } else {
+            horseSect.set("chest", null);
+        }
+
+        horseSect.set("saddle", null);
+        horseSect.set("armour", null);
+        horseSect.set("renameable", horse.isRenamable());
+
+        ArrayList<Map<String, Object>> itemList = new ArrayList<>();
+
+        ItemStack[] items = horse.getItems();
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] != null) {
+                Map<String, Object> item = items[i].serialize();
+
+                item.put("slot", i);
+                itemList.add(item);
+            }
+        }
+        horseSect.set("inventory", itemList);
+    }
+
+    private File getPlayersConfigFile(String player, String stableGroup) {
+        if (stableGroup.equals("default")) {
+            return new File(getPlugin().getDataFolder(), String.format(PLAYER_DATA_LOCATION, player));
+        }
+        return new File(getPlugin().getDataFolder(), String.format(GROUPED_PLAYER_DATA_LOCATION, stableGroup, player));
+    }
+
+    protected void importStables(List<Stable> stables) {
+        for (Stable stable : stables)
+            saveStable(stable);
+    }
+
     private YamlConfiguration getPlayerConfig(OfflinePlayer player, String stableGroup) {
-        YamlConfiguration cfg = new YamlConfiguration();
+        YamlConfiguration config = new YamlConfiguration();
 
         File file = getPlayersConfigFile(player, stableGroup);
 
         if (file.exists()) {
             try {
-                cfg.load(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InvalidConfigurationException e) {
+                config.load(file);
+            } catch (IOException | InvalidConfigurationException e) {
                 e.printStackTrace();
             }
         }
 
-        return cfg;
+        return config;
+    }
+
+    protected Stable loadStable(String player, String stableGroup) {
+        Stable stable = new Stable(getPlugin(), stableGroup, player);
+
+        loadHorses(stable, stableGroup);
+
+        return stable;
     }
 
     public List<Stable> loadEverything() {
@@ -90,21 +202,16 @@ public class YamlDatabase extends HorseDatabase {
             return Collections.emptyList();
         }
 
-        ArrayList stables = new ArrayList();
+        ArrayList<Stable> stables = new ArrayList<>();
 
         loadStableGroup(playerDataFolder, stables, true);
 
         return stables;
     }
 
-    protected void importStables(List<Stable> stables) {
-        for (Stable stable : stables)
-            saveStable(stable);
-    }
-
     private void loadStableGroup(File folder, ArrayList<Stable> stables, boolean recursive) {
         String groupName = folder.getName().equals("playerdata") ? "default" : folder.getName();
-        Pattern extentionReplace = Pattern.compile("\\.yml$", 2);
+        Pattern extentionReplace = Pattern.compile("\\.yml$", Pattern.CASE_INSENSITIVE);
 
         File[] fileList = folder.listFiles();
 
@@ -121,135 +228,24 @@ public class YamlDatabase extends HorseDatabase {
         }
     }
 
-    protected Stable loadStable(String player, String stableGroup) {
-        Stable stable = new Stable(getPlugin(), stableGroup, player);
-
-        loadHorses(stable, stableGroup);
-
-        return stable;
-    }
-
     protected void loadHorses(Stable stable, String stableGroup) {
-        YamlConfiguration cfg = getPlayerConfig(Bukkit.getOfflinePlayer(stable.getOwner()), stableGroup);
+        YamlConfiguration config = getPlayerConfig(Bukkit.getOfflinePlayer(stable.getOwner()), stableGroup);
 
-        ConfigurationSection sect = BukkitConfigUtil.getAndSetConfigurationSection(cfg, "Horses");
+        ConfigurationSection sect = BukkitConfigUtil.getAndSetConfigurationSection(config, "Horses");
 
         for (String horse : sect.getKeys(false)) {
             ConfigurationSection horseSect = sect.getConfigurationSection(horse);
-            configToHorse(stable,horseSect,getPlugin());
+            if (horseSect == null) continue;
+
+            configToHorse(stable, horseSect, getPlugin());
         }
 
-        if (cfg.isString("lastactive")) {
-            PlayerHorse horse = stable.findHorse(cfg.getString("lastactive"), true);
+        if (config.isString("lastactive")) {
+            PlayerHorse horse = stable.findHorse(config.getString("lastactive"), true);
             stable.setLastActiveHorse(horse);
         }
     }
-    public static PlayerHorse configToHorse(Stable stable, ConfigurationSection horseSect, Horses plugin) {
-        HorseType type = HorseType.exactValueOf(horseSect.getString("type", HorseType.White.toString()));
-        long lastDeath = horseSect.getLong("lastdeath") * 1000L;
-        double maxHealth = horseSect.getDouble("maxhealth");
-        double health = horseSect.getDouble("health");
-        double speed = horseSect.getDouble("speed", 0.225D);
-        double jumpStrength = horseSect.getDouble("jumpstrength", 0.7D);
-        boolean renameable = true;
-        if (horseSect.contains("renameable")) {
-            renameable = horseSect.getBoolean("renameable");
-        }
-        boolean hasChest = (type == HorseType.Mule) || (type == HorseType.Donkey) ? horseSect.getBoolean("chest", false) : false;
 
-        ItemStack saddle = null;
-        if (horseSect.contains("saddle")) {
-            if (horseSect.isBoolean("saddle")) {
-                if (horseSect.getBoolean("saddle")) {
-                    saddle = new ItemStack(Material.SADDLE);
-                }
-            }else {
-                saddle = horseSect.getItemStack("saddle");
-            }
-        }
-
-        ItemStack armour = null;
-        if (horseSect.contains("armour")) {
-            if (horseSect.isString("armour")) {
-                armour = new ItemStack(Material.getMaterial(horseSect.getString("armour", "null")));
-            }else {
-                armour = horseSect.getItemStack("armour");
-            }
-        }
-        String trail = null;
-        if (horseSect.contains("trail")) {
-            trail = horseSect.getString("trail");
-        }
-        ArrayList items = new ArrayList();
-
-        for (Map itemMap : horseSect.getMapList("inventory")) {
-            int slot = -1;
-            try {
-                slot = ((Integer) itemMap.get("slot")).intValue();
-            } catch (NullPointerException e) {
-                plugin.log(Level.SEVERE, "Player '%s' data file is corrupt: Inventory slot number was missing", e, new Object[]{stable.getOwner()});
-                continue;
-            } catch (ClassCastException e) {
-                plugin.log(Level.SEVERE, "Player '%s' data file is corrupt: Inventory slot number was not a number", e, new Object[]{stable.getOwner()});
-                continue;
-            }
-
-            ItemStack item = ItemStack.deserialize(itemMap);
-
-            while (items.size() <= slot) {
-                items.add(null);
-            }
-            items.set(slot, item);
-        }
-
-        PlayerHorse horseData = new PlayerHorse(plugin, stable, horseSect.getName(), type, maxHealth, health, speed, jumpStrength, null);
-        horseData.setLastDeath(lastDeath);
-        horseData.setRenamable(renameable);
-
-        horseData.setItems((ItemStack[]) items.toArray(new ItemStack[items.size()]));
-        if (saddle != null)
-            horseData.setSaddle(saddle);
-        if (armour != null)
-            horseData.setArmour(armour);
-        horseData.setHasChest(hasChest);
-
-        stable.addHorse(horseData);
-        return horseData;
-    }
-    public static void saveHorseToSection(ConfigurationSection sect, PlayerHorse horse) {
-        String colourCodedDisplayName = COLOUR_CHAR_REPLACE.matcher(horse.getDisplayName()).replaceAll("&");
-        ConfigurationSection horseSect = BukkitConfigUtil.getAndSetConfigurationSection(sect, colourCodedDisplayName);
-
-        horseSect.set("type", horse.getType().toString());
-        horseSect.set("lastdeath", Long.valueOf(horse.getLastDeath() / 1000L));
-        horseSect.set("maxhealth", Double.valueOf(horse.getMaxHealth()));
-        horseSect.set("health", Double.valueOf(horse.getHealth()));
-        horseSect.set("speed", Double.valueOf(horse.getSpeed()));
-        horseSect.set("jumpstrength", Double.valueOf(horse.getJumpStrength()));
-        if ((horse.getType() == HorseType.Mule) || (horse.getType() == HorseType.Donkey)) {
-            horseSect.set("chest", Boolean.valueOf(horse.hasChest()));
-        } else {
-            horseSect.set("chest", null);
-        }
-
-        horseSect.set("saddle", null);
-        horseSect.set("armour", null);
-        horseSect.set("renameable",horse.isRenamable());
-
-        ArrayList itemList = new ArrayList();
-
-        ItemStack[] items = horse.getItems();
-        for (int i = 0; i < items.length; i++) {
-            if (items[i] != null) {
-                Map item = items[i].serialize();
-
-                item.put("slot", Integer.valueOf(i));
-
-                itemList.add(item);
-            }
-        }
-        horseSect.set("inventory", itemList);
-    }
     protected void saveStable(Stable stable) {
         File playerDataFile = getPlayersConfigFile(Bukkit.getOfflinePlayer(stable.getOwner()), stable.getGroup());
 
@@ -259,21 +255,21 @@ public class YamlDatabase extends HorseDatabase {
             return;
         }
 
-        YamlConfiguration cfg = new YamlConfiguration();
+        YamlConfiguration config = new YamlConfiguration();
 
         if (stable.getLastActiveHorse() != null)
-            cfg.set("lastactive", stable.getLastActiveHorse().getName());
+            config.set("lastactive", stable.getLastActiveHorse().getName());
         else {
-            cfg.set("lastactive", null);
+            config.set("lastactive", null);
         }
-        ConfigurationSection sect = BukkitConfigUtil.getAndSetConfigurationSection(cfg, "Horses");
+        ConfigurationSection sect = BukkitConfigUtil.getAndSetConfigurationSection(config, "Horses");
 
         for (PlayerHorse horse : stable) {
-            saveHorseToSection(sect,horse);
+            saveHorseToSection(sect, horse);
         }
 
         try {
-            cfg.save(playerDataFile);
+            config.save(playerDataFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -293,10 +289,12 @@ public class YamlDatabase extends HorseDatabase {
 
         return migrateFile(dataFolder, true);
     }
-    public boolean fixUndeadSkel() {
+
+    public void fixUndeadSkel() {
         File dataFolder = new File(super.getPlugin().getDataFolder(), "playerdata");
-        return fixUndeadSkel(dataFolder,true);
+        fixUndeadSkel(dataFolder, true);
     }
+
     private boolean fixUndeadSkel(File file, boolean top) {
         if (file.isDirectory()) {
             if (!top) {
@@ -320,48 +318,43 @@ public class YamlDatabase extends HorseDatabase {
         } catch (IllegalArgumentException e) {
             offlinePlayer = Bukkit.getOfflinePlayer(fileName);
         }
-        if (offlinePlayer != null) {
-            YamlConfiguration cfg = new YamlConfiguration();
-            try {
-                cfg.load(file);
-                if (cfg.contains("Horses")) {
-                    ConfigurationSection horsesSection = cfg.getConfigurationSection("Horses");
-                    for (String key : horsesSection.getKeys(false)) {
-                        ConfigurationSection horseSection = horsesSection.getConfigurationSection(key);
-                        if (horseSection.contains("type")) {
-                            String typeString = horseSection.getString("type");
-                            HorseType horseType = HorseType.exactValueOf(typeString);
-                            if (horseType != null) {
-                                if (horseType == HorseType.Skeleton || horseType == HorseType.Undead) {
-                                    final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
-                                    final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
+        YamlConfiguration config = new YamlConfiguration();
+        try {
+            config.load(file);
+            if (config.contains("Horses")) {
+                ConfigurationSection horsesSection = config.getConfigurationSection("Horses");
+                for (String key : horsesSection.getKeys(false)) {
+                    ConfigurationSection horseSection = horsesSection.getConfigurationSection(key);
+                    if (horseSection.contains("type")) {
+                        String typeString = horseSection.getString("type");
+                        HorseType horseType = HorseType.exactValueOf(typeString);
+                        if (horseType != null) {
+                            if (horseType == HorseType.Skeleton || horseType == HorseType.Undead) {
+                                final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+                                final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
 
-                                    if (GMplugin != null && GMplugin.isEnabled()) {
-                                        GroupManager groupManager = (GroupManager) GMplugin;
-                                        try {
-                                            String playerName = offlinePlayer.getName();
-                                            if (playerName == null) {
-                                                playerName = fileName;
-                                            }
-                                            User user = groupManager.getWorldsHolder().getDefaultWorld().getUser(playerName);
-                                            if (user != null && !user.hasSamePermissionNode(horseType.getTamePermission())) {
-                                                horseSection.set("type", HorseType.Black.toString());
-                                                cfg.save(file);
-                                            }
-                                        }catch (Exception ignored) {}
+                                if (GMplugin != null && GMplugin.isEnabled()) {
+                                    GroupManager groupManager = (GroupManager) GMplugin;
+                                    try {
+                                        String playerName = offlinePlayer.getName();
+                                        if (playerName == null) {
+                                            playerName = fileName;
+                                        }
+                                        User user = groupManager.getWorldsHolder().getDefaultWorld().getUser(playerName);
+                                        if (user != null && !user.hasSamePermissionNode(horseType.getTamePermission())) {
+                                            horseSection.set("type", HorseType.Black.toString());
+                                            config.save(file);
+                                        }
+                                    } catch (Exception ignored) {
                                     }
                                 }
                             }
                         }
                     }
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (InvalidConfigurationException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (InvalidConfigurationException | IOException e) {
+            e.printStackTrace();
         }
         return true;
     }
@@ -392,14 +385,10 @@ public class YamlDatabase extends HorseDatabase {
 
             UUID id = player.getUniqueId();
 
-            if (id == null) {
-                return false;
-            }
-
-            File migratedFile = new File(file.getParentFile(), id.toString() + ".yml");
+            File migratedFile = new File(file.getParentFile(), id + ".yml");
 
             if (migratedFile.exists()) {
-                getPlugin().getLogger().info(String.format("Player has two datafiles '%s' and '%s'", new Object[]{migratedFile.getPath(), file.getPath()}));
+                getPlugin().getLogger().info(String.format("Player has two datafiles '%s' and '%s'", migratedFile.getPath(), file.getPath()));
                 return false;
             }
 

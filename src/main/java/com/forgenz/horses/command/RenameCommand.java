@@ -28,7 +28,7 @@ public class RenameCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("<%1%s%2$s> <%3$s%4$s>", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_New, Messages.Misc_Words_Name}));
+        setArgumentString(String.format("<%1%s%2$s> <%3$s%4$s>", Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_New, Messages.Misc_Words_Name));
         setDescription(Messages.Command_Rename_Description.toString());
     }
 
@@ -79,12 +79,12 @@ public class RenameCommand extends ForgeCommand {
         }
 
         if (pcfg.requireNameTagForRenaming) {
-            if (player.getItemInHand().getType() != Material.NAME_TAG) {
+            if (player.getInventory().getItemInMainHand().getType() != Material.NAME_TAG) {
                 Messages.Command_Rename_Error_RequireNametag.sendMessage(player);
                 return;
             }
 
-            player.setItemInHand(new ItemStack(Material.AIR));
+            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         }
         if (!horse.isRenamable()) {
             player.sendMessage(ChatColor.RED + "This horse is not renameable!");

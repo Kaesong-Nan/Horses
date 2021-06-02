@@ -15,7 +15,7 @@ import java.util.logging.Level;
 public abstract class ForgePlugin extends JavaPlugin
         implements ForgeCoreEntity {
     private int loadCount = 0;
-    private String listenerKey;
+    private final String listenerKey;
     private WorldGuardPlugin worldGuard;
     private Economy econ;
 
@@ -63,7 +63,7 @@ public abstract class ForgePlugin extends JavaPlugin
             }
 
             return this.econ != null;
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         return false;
     }
