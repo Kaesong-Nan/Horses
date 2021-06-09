@@ -30,7 +30,7 @@ public class HorseUnpackListener extends ForgeListener {
     }
 
     public static Optional<String> extractSingleVariableFromItem(ItemStack itemStack, String identifier) {
-        return itemStack != null && identifier != null && !identifier.isEmpty() && itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore().stream().filter((loreI) -> loreI.contains(identifier)).map((loreI) -> ChatColor.stripColor(loreI.replace(identifier, "")).trim()).findFirst() : Optional.empty();
+        return itemStack != null && identifier != null && !identifier.isEmpty() && itemStack.getItemMeta().hasLore() ? Optional.of(itemStack.getItemMeta().getLore().stream().filter((loreI) -> loreI.contains(identifier)).map((loreI) -> ChatColor.stripColor(loreI.replace(identifier, "")).trim()).findFirst().orElse(null)) : Optional.empty();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
