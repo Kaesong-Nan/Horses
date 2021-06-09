@@ -4,3 +4,4 @@ dependency-reduced-pom.xml
 target/
 /Horses.iml
 *.jar
+out/

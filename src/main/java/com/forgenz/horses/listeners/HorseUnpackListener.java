@@ -14,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -30,7 +31,7 @@ public class HorseUnpackListener extends ForgeListener {
     }
 
     public static Optional<String> extractSingleVariableFromItem(ItemStack itemStack, String identifier) {
-        return itemStack != null && identifier != null && !identifier.isEmpty() && itemStack.getItemMeta().hasLore() ? Optional.of(itemStack.getItemMeta().getLore().stream().filter((loreI) -> loreI.contains(identifier)).map((loreI) -> ChatColor.stripColor(loreI.replace(identifier, "")).trim()).findFirst().orElse(null)) : Optional.empty();
+        return itemStack != null && identifier != null && !identifier.isEmpty() && itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore().stream().filter((loreI) -> loreI.contains(identifier)).map((loreI) -> ChatColor.stripColor(loreI.replace(identifier, "")).trim()).findFirst() : Optional.empty();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -40,7 +41,10 @@ public class HorseUnpackListener extends ForgeListener {
             return;
         }
         ItemStack itemStack = p.getInventory().getItemInMainHand();
-        if (itemStack.getType() == Material.AIR) {
+        if (!((itemStack.getType() == Material.HORSE_SPAWN_EGG) ||
+                (itemStack.getType() == Material.SKELETON_HORSE_SPAWN_EGG) || (itemStack.getType() == Material.ZOMBIE_HORSE_SPAWN_EGG) ||
+                (itemStack.getType() == Material.MULE_SPAWN_EGG) || (itemStack.getType() == Material.DONKEY_SPAWN_EGG) ||
+                (itemStack.getType() == Material.TRADER_LLAMA_SPAWN_EGG) || (itemStack.getType() == Material.LLAMA_SPAWN_EGG))) {
             return;
         }
         String horseId;
