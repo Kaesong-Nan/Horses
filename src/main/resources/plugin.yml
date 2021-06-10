@@ -1,7 +1,7 @@
 main: com.forgenz.horses.Horses
 name: Horses
 version: 1.2.0
-authors: [ ShadowDog007, Fadest ]
+authors: [ ShadowDog007, Fadest, GenSecrets ]
 website: 'http://dev.bukkit.org/bukkit-plugins/horse-stables/'
 softdepend: [ Vault, NoCheatPlus ]
 

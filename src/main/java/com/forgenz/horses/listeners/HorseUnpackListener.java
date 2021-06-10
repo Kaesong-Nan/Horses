@@ -34,9 +34,11 @@ public class HorseUnpackListener extends ForgeListener {
         return itemStack != null && identifier != null && !identifier.isEmpty() && itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore().stream().filter((loreI) -> loreI.contains(identifier)).map((loreI) -> ChatColor.stripColor(loreI.replace(identifier, "")).trim()).findFirst() : Optional.empty();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    // COMMENT OUT DUE TO UNPACK NOT WORKING
+    //@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void interact(PlayerInteractEvent event) {
         Player p = event.getPlayer();
+
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
