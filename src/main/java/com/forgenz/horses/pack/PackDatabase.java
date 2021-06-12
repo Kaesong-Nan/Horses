@@ -15,7 +15,7 @@ import java.io.IOException;
  * Created by john on 8/12/15.
  */
 public class PackDatabase {
-    private Horses plugin;
+    private final Horses plugin;
 
     public PackDatabase(Horses plugin) {
         this.plugin = plugin;
@@ -71,9 +71,6 @@ public class PackDatabase {
             return null;
         }
         PlayerHorse playerHorse = YamlDatabase.configToHorse(stable, horseSect, plugin);
-        if (playerHorse == null) {
-            return null;
-        }
         plugin.getHorseDatabase().saveHorse(playerHorse);
         return playerHorse;
     }

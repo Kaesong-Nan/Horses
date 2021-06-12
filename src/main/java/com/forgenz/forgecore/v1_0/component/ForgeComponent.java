@@ -25,7 +25,7 @@ public abstract class ForgeComponent
         byte[] chars = new byte[8];
         RandomUtil.get().nextBytes(chars);
 
-        this.listenerKey = String.format("%s-%s", new Object[]{new String(chars), name});
+        this.listenerKey = String.format("%s-%s", new String(chars), name);
 
         onLoad();
     }

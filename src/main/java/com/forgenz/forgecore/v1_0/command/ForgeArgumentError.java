@@ -30,18 +30,18 @@ public final class ForgeArgumentError {
         return new ForgeArgumentError(arg.getError(), ErrorType.INVALID_ARG);
     }
 
-    public static enum ErrorType {
+    public enum ErrorType {
         GOOD(""),
 
-        TOO_FEW_ARGS(String.format("%sToo few arguments", new Object[]{ChatColor.AQUA})),
+        TOO_FEW_ARGS(String.format("%sToo few arguments", ChatColor.AQUA)),
 
-        TOO_MANY_ARGS(String.format("%sToo many arguments", new Object[]{ChatColor.AQUA})),
+        TOO_MANY_ARGS(String.format("%sToo many arguments", ChatColor.AQUA)),
 
         INVALID_ARG(null);
 
         private final ForgeArgumentError error;
 
-        private ErrorType(String error) {
+        ErrorType(String error) {
             if (error != null) {
                 this.error = new ForgeArgumentError(error, this);
             } else {

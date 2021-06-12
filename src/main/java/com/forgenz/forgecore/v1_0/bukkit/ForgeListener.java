@@ -11,7 +11,7 @@ import java.util.Set;
 
 public abstract class ForgeListener
         implements ForgeCore, Listener {
-    private static final HashMap<String, Set<ForgeListener>> registeredListeners = new HashMap();
+    private static final HashMap<String, Set<ForgeListener>> registeredListeners = new HashMap<>();
     protected final ForgePlugin plugin;
     private String registeredKey = null;
 
@@ -51,34 +51,12 @@ public abstract class ForgeListener
         this.registeredKey = key;
     }
 
-    public final void unregister() {
-        if (this.registeredKey == null) {
-            throw new IllegalStateException("Listener is not registered");
-        }
+    private static Set<ForgeListener> getListeners(String key) {
 
-        HandlerList.unregisterAll(this);
-
-        Set listeners = getListeners(this.registeredKey);
-        listeners.remove(this);
-        if (listeners.isEmpty()) {
-            registeredListeners.remove(this.registeredKey);
-        }
-
-        this.registeredKey = null;
+        return registeredListeners.computeIfAbsent(key, k -> new HashSet<>());
     }
 
-    private static final Set<ForgeListener> getListeners(String key) {
-        Set listeners = (Set) registeredListeners.get(key);
-
-        if (listeners == null) {
-            listeners = new HashSet();
-            registeredListeners.put(key, listeners);
-        }
-
-        return listeners;
-    }
-
-    public static final void unregisterAll(String key) {
+    public static void unregisterAll(String key) {
         Set<ForgeListener> listeners = getListeners(key);
 
         for (ForgeListener listener : listeners) {
@@ -87,5 +65,21 @@ public abstract class ForgeListener
 
         listeners.clear();
         registeredListeners.remove(key);
+    }
+
+    public final void unregister() {
+        if (this.registeredKey == null) {
+            throw new IllegalStateException("Listener is not registered");
+        }
+
+        HandlerList.unregisterAll(this);
+
+        Set<ForgeListener> listeners = getListeners(this.registeredKey);
+        listeners.remove(this);
+        if (listeners.isEmpty()) {
+            registeredListeners.remove(this.registeredKey);
+        }
+
+        this.registeredKey = null;
     }
 }

@@ -3,15 +3,15 @@ package com.forgenz.horses.config;
 import com.forgenz.forgecore.v1_0.ForgeCore;
 import com.forgenz.forgecore.v1_0.util.BukkitConfigUtil;
 import com.forgenz.horses.Horses;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class WorldGuardConfig
         implements ForgeCore {
@@ -26,34 +26,31 @@ public class WorldGuardConfig
         ConfigurationSection cfg = BukkitConfigUtil.getAndSetConfigurationSection(plugin.getConfig(), "WorldGuard");
         cfg = BukkitConfigUtil.getAndSetConfigurationSection(cfg, "CommandAllowedRegions");
 
-        Set set = new HashSet();
+        Set<String> set = new HashSet<>();
         List<String> list;
         if (cfg.isList("Summon")) {
             list = cfg.getStringList("Summon");
-            for (String region : list)
-                set.add(region);
+            set.addAll(list);
         } else {
             list = Collections.emptyList();
         }
         this.commandSummonAllowedRegions = (set.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(set));
         cfg.set("Summon", list);
 
-        set = new HashSet();
+        set.clear();
         this.commandBuyAllowedRegions = Collections.unmodifiableSet(set);
         if (cfg.isList("Buy")) {
             list = cfg.getStringList("Buy");
-            for (String region : list)
-                set.add(region);
+            set.addAll(list);
         } else {
             list = Collections.emptyList();
         }
         cfg.set("Buy", list);
 
-        set = new HashSet();
+        set.clear();
         if (cfg.isList("Dismiss")) {
             list = cfg.getStringList("Dismiss");
-            for (String region : list)
-                set.add(region);
+            set.addAll(list);
         } else {
             list = Collections.emptyList();
         }
@@ -72,12 +69,12 @@ public class WorldGuardConfig
         if (allowedRegions.isEmpty()) {
             return false;
         }
-        RegionManager rm = getPlugin().getWorldGuard().getRegionManager(location.getWorld());
+        RegionManager rm = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(Objects.requireNonNull(location.getWorld())));
 
         if (rm == null) {
             return false;
         }
-        for (ProtectedRegion region : rm.getApplicableRegions(location)) {
+        for (ProtectedRegion region : rm.getApplicableRegions(BlockVector3.at(location.getX(), location.getY(), location.getZ()))) {
             if (allowedRegions.contains(region.getId())) {
                 return true;
             }

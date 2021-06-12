@@ -29,13 +29,14 @@ public class GiveCommand extends ForgeCommand {
         registerArgument(new ForgeCommandArgument(getPlugin().getHorsesConfig().forceEnglishCharacters ? "^[a-z0-9_&]+$" : "^[^ ]+$", 2, false, Messages.Misc_Command_Error_NameValidCharacters.toString()));
         registerArgument(new ForgeCommandArgument(getPlugin().getHorsesConfig().forceEnglishCharacters ? "^[a-z0-9_&]+$" : "^[^ ]+$", 2, false, Messages.Command_Buy_Error_Type.toString()));
         for (int i = 0; i < 10; i++) {
-            registerArgument(new ForgeCommandArgument(".*?",true,""));
+            registerArgument(new ForgeCommandArgument(".*?", true, ""));
         }
         setAllowOp(true);
         setAllowConsole(true);
-        setArgumentString(String.format("<%1$s%3$s> <%2$s%3$s> <%2$s%4$s>", new Object[]{Messages.Misc_Words_Player, Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_Type}));
+        setArgumentString(String.format("<%1$s%3$s> <%2$s%3$s> <%2$s%4$s>", Messages.Misc_Words_Player, Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_Type));
         setDescription(Messages.Command_Give_Description.toString());
     }
+
     private ItemStack getBarding(String name) {
         name = name.toLowerCase();
         if (getPlugin().getHorsesConfig().getBardings().containsKey(name)) {
@@ -43,14 +44,15 @@ public class GiveCommand extends ForgeCommand {
         }
         if (name.equalsIgnoreCase("diamond")) {
             return new ItemStack(Material.DIAMOND_HORSE_ARMOR);
-        }else if (name.equalsIgnoreCase("gold")) {
+        } else if (name.equalsIgnoreCase("gold")) {
             return new ItemStack(Material.GOLDEN_HORSE_ARMOR);
-        }else if (name.equalsIgnoreCase("iron")) {
+        } else if (name.equalsIgnoreCase("iron")) {
             return new ItemStack(Material.IRON_HORSE_ARMOR);
-        }else {
+        } else {
             return null;
         }
     }
+
     private ItemStack getSaddle(String name) {
         name = name.toLowerCase();
         if (getPlugin().getHorsesConfig().getSaddles().containsKey(name)) {
@@ -58,7 +60,6 @@ public class GiveCommand extends ForgeCommand {
         }
         return null;
     }
-
 
 
     protected void onCommand(CommandSender sender, ForgeArgs args) {
@@ -84,7 +85,7 @@ public class GiveCommand extends ForgeCommand {
         double maxHealth = -1;
         double health = -1;
         double speed = -1;
-        double jumpstrength = -1;
+        double jumpStrength = -1;
         boolean renameable = true;
 
         String displayName = ChatColor.translateAlternateColorCodes('&', args.getArg(1).replace("_", " "));
@@ -98,19 +99,19 @@ public class GiveCommand extends ForgeCommand {
                         String value = split[1];
                         if (modifier.equalsIgnoreCase("armor")) {
                             barding = getBarding(value);
-                        }else if (modifier.equalsIgnoreCase("trail")) {
+                        } else if (modifier.equalsIgnoreCase("trail")) {
                             trailName = value;
-                        }else if (modifier.equalsIgnoreCase("maxhealth")) {
+                        } else if (modifier.equalsIgnoreCase("maxhealth")) {
                             maxHealth = Double.parseDouble(value);
-                        }else if (modifier.equalsIgnoreCase("health")) {
+                        } else if (modifier.equalsIgnoreCase("health")) {
                             health = Double.parseDouble(value);
-                        }else if (modifier.equalsIgnoreCase("speed")) {
+                        } else if (modifier.equalsIgnoreCase("speed")) {
                             speed = Double.parseDouble(value);
-                        }else if (modifier.equalsIgnoreCase("jumpstrength")) {
-                            jumpstrength = Double.parseDouble(value);
-                        }else if (modifier.equalsIgnoreCase("renameable")) {
+                        } else if (modifier.equalsIgnoreCase("jumpStrength")) {
+                            jumpStrength = Double.parseDouble(value);
+                        } else if (modifier.equalsIgnoreCase("renameable")) {
                             renameable = Boolean.parseBoolean(value);
-                        }else if (modifier.equalsIgnoreCase("saddle")) {
+                        } else if (modifier.equalsIgnoreCase("saddle")) {
                             saddle = getSaddle(value);
                         }
                     }
@@ -130,11 +131,11 @@ public class GiveCommand extends ForgeCommand {
 
         Stable stable = getPlugin().getHorseDatabase().getPlayersStable(player);
         if (stable.findHorse(name, true) != null) {
-            stable.deleteHorse(stable.findHorse(name,true));
+            stable.deleteHorse(stable.findHorse(name, true));
         }
 
 
-        PlayerHorse horse = stable.createHorse(displayName, typecfg,null, pcfg.startWithSaddle,trailName);
+        PlayerHorse horse = stable.createHorse(displayName, typecfg, null, pcfg.startWithSaddle, trailName);
         if (barding != null) {
             horse.setArmour(barding);
         }
@@ -150,8 +151,8 @@ public class GiveCommand extends ForgeCommand {
         if (speed != -1) {
             horse.setSpeed(speed);
         }
-        if (jumpstrength != -1) {
-            horse.setJumpStrength(jumpstrength);
+        if (jumpStrength != -1) {
+            horse.setJumpStrength(jumpStrength);
         }
         if (saddle != null) {
             horse.setSaddle(saddle);

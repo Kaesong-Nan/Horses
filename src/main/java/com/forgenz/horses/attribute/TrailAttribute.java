@@ -4,12 +4,14 @@ import com.forgenz.horses.Horses;
 import com.forgenz.horses.PlayerHorse;
 import com.voxmc.voxlib.util.VoxTrail;
 
+import java.util.Objects;
+
 /**
  * Created by john on 8/7/15.
  */
 public class TrailAttribute extends Attribute implements BuffAttribute {
-    private VoxTrail voxTrail;
-    
+    private final VoxTrail voxTrail;
+
     public TrailAttribute(VoxTrail voxTrail) {
         this.voxTrail = voxTrail;
     }
@@ -44,8 +46,8 @@ public class TrailAttribute extends Attribute implements BuffAttribute {
         }
         
         TrailAttribute that = (TrailAttribute) o;
-        
-        return !(voxTrail != null ? !voxTrail.equals(that.voxTrail) : that.voxTrail != null);
+
+        return Objects.equals(voxTrail, that.voxTrail);
     }
     
     @Override

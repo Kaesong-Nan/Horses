@@ -1,16 +1,16 @@
 main: com.forgenz.horses.Horses
 name: Horses
-version: 1.1.13-Z37
-author: ShadowDog007
+version: 1.2.0
+authors: [ ShadowDog007, Fadest, GenSecrets ]
 website: 'http://dev.bukkit.org/bukkit-plugins/horse-stables/'
-softdepend: [Vault, NoCheatPlus]
+softdepend: [ Vault, NoCheatPlus ]
 
-api-version: 1.13
+api-version: 1.16
 
 commands:
   horses:
     description: Virtual Stables System main command
-    aliases: [h, horse]
+    aliases: [ h, horse ]
 
 permissions:
   horses.vip:

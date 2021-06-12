@@ -44,38 +44,33 @@ public class InteractListener extends ForgeListener {
     
     @EventHandler(ignoreCancelled = true)
     public void onInventory(final InventoryClickEvent event) {
-        if(event.getView() != null && event.getView().getTopInventory() != null
-                /*&& event.getView().getTopInventory() instanceof HorseInventory*/) {
-            final InventoryHolder holder = event.getView().getTopInventory().getHolder();
-            if(holder instanceof AbstractHorse) {
-                final AbstractHorse horse = (AbstractHorse) holder;
-                final PlayerHorse playerHorse = PlayerHorse.getFromEntity(horse);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if(playerHorse != null) {
-                            playerHorse.updateAttributes();
-                        }
+        final InventoryHolder holder = event.getView().getTopInventory().getHolder();
+        if (holder instanceof AbstractHorse) {
+            final AbstractHorse horse = (AbstractHorse) holder;
+            final PlayerHorse playerHorse = PlayerHorse.getFromEntity(horse);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (playerHorse != null) {
+                        playerHorse.updateAttributes();
                     }
-                }.runTaskLater(plugin, 1);
-            }
+                }
+            }.runTaskLater(plugin, 1);
         }
     }
     
     @SuppressWarnings({"TypeMayBeWeakened", "deprecation"})
     private void handleOwnedHorse(final PlayerInteractEntityEvent event, final PlayerHorse horseData, final Player player) {
-        if(!event.getPlayer().getName().equals(horseData.getStable().getOwner())) {
-            Messages.Event_Interact_Error_CantInteractWithThisHorse.sendMessage(event.getPlayer(), new Object[] {horseData.getStable().getOwner()});
+        if (!event.getPlayer().getName().equals(horseData.getStable().getOwner())) {
+            Messages.Event_Interact_Error_CantInteractWithThisHorse.sendMessage(event.getPlayer(), new Object[]{horseData.getStable().getOwner()});
             event.setCancelled(true);
             return;
         }
-        
+
         final HorsesPermissionConfig cfg = getPlugin().getHorsesConfig().getPermConfig(event.getPlayer());
-        Material matInHand = null;
-        if(event.getPlayer().getItemInHand() != null) {
-            matInHand = event.getPlayer().getItemInHand().getType();
-        }
-        if(matInHand == Material.SADDLE || matInHand != null && matInHand.toString().contains("BARD")) {
+        Material matInHand = event.getPlayer().getItemInHand().getType();
+
+        if (matInHand == Material.SADDLE || matInHand.toString().contains("BARD")) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -83,8 +78,8 @@ public class InteractListener extends ForgeListener {
                 }
             }.runTaskLater(plugin, 1);
         }
-        if(event.getPlayer().getItemInHand().getType() == Material.NAME_TAG) {
-            if(cfg.allowRenameFromNameTag && horseData.isRenamable()) {
+        if (event.getPlayer().getItemInHand().getType() == Material.NAME_TAG) {
+            if (cfg.allowRenameFromNameTag && horseData.isRenamable()) {
                 final ItemMeta meta = event.getPlayer().getItemInHand().getItemMeta();
                 final String name = meta.getDisplayName();
                 

@@ -57,55 +57,53 @@ public class HorsesPermissionConfig extends AbstractConfig {
 
         addResourseToHeader("header_permission.txt");
 
-        this.bypassSpawnProtection = ((Boolean) getAndSet("BypassSpawnProtection", Boolean.valueOf(false), Boolean.class)).booleanValue();
+        this.bypassSpawnProtection = getAndSet("BypassSpawnProtection", false, Boolean.class);
 
-        if (!((Boolean) getAndSet("DismissHorseOnTeleport", Boolean.valueOf(true), Boolean.class)).booleanValue()) ;
-        this.dismissHorseOnTeleport = true;
-        this.startWithSaddle = ((Boolean) getAndSet("StartWithSaddle", Boolean.valueOf(true), Boolean.class)).booleanValue();
+        this.dismissHorseOnTeleport = getAndSet("DismissHorseOnTeleport", true, Boolean.class);
+        this.startWithSaddle = getAndSet("StartWithSaddle", true, Boolean.class);
 
-        this.maxHorses = ((Number) getAndSet("MaxHorses", Integer.valueOf(5), Number.class)).intValue();
-        this.summonDelay = ((Number) getAndSet("SummonDelay", Integer.valueOf(10), Number.class)).intValue();
-        this.cancelSummonOnMove = ((Boolean) getAndSet("CancelSummonOnMove", Boolean.valueOf(true), Boolean.class)).booleanValue();
+        this.maxHorses = getAndSet("MaxHorses", 5, Number.class).intValue();
+        this.summonDelay = getAndSet("SummonDelay", 10, Number.class).intValue();
+        this.cancelSummonOnMove = getAndSet("CancelSummonOnMove", true, Boolean.class);
 
         ConfigurationSection sect = getConfigSect("Commands");
 
-        this.allowBuyCommand = ((Boolean) getAndSet(sect, "AllowBuyCommand", Boolean.valueOf(config.getBoolean("AllowBuyCommand", true)), Boolean.class)).booleanValue();
+        this.allowBuyCommand = getAndSet(sect, "AllowBuyCommand", config.getBoolean("AllowBuyCommand", true), Boolean.class);
         config.set("AllowBuyCommand", null);
-        this.allowDeleteCommand = ((Boolean) getAndSet(sect, "AllowDeleteCommand", Boolean.valueOf(config.getBoolean("AllowDeleteCommand", true)), Boolean.class)).booleanValue();
+        this.allowDeleteCommand = getAndSet(sect, "AllowDeleteCommand", config.getBoolean("AllowDeleteCommand", true), Boolean.class);
         config.set("AllowDeleteCommand", null);
-        this.allowDismissCommand = ((Boolean) getAndSet(sect, "AllowDismissCommand", Boolean.valueOf(config.getBoolean("AllowDismissCommand", true)), Boolean.class)).booleanValue();
+        this.allowDismissCommand = getAndSet(sect, "AllowDismissCommand", config.getBoolean("AllowDismissCommand", true), Boolean.class);
         config.set("AllowDismissCommand", null);
-        this.allowHealCommand = ((Boolean) getAndSet(sect, "AllowHealCommand", Boolean.valueOf(config.getBoolean("AllowHealCommand", true)), Boolean.class)).booleanValue();
+        this.allowHealCommand = getAndSet(sect, "AllowHealCommand", config.getBoolean("AllowHealCommand", true), Boolean.class);
         config.set("AllowHealCommand", null);
-        this.allowListCommand = ((Boolean) getAndSet(sect, "AllowListCommand", Boolean.valueOf(config.getBoolean("AllowListCommand", true)), Boolean.class)).booleanValue();
+        this.allowListCommand = getAndSet(sect, "AllowListCommand", config.getBoolean("AllowListCommand", true), Boolean.class);
         config.set("AllowListCommand", null);
-        this.allowRenameCommand = ((Boolean) getAndSet(sect, "AllowRenameCommand", Boolean.valueOf(config.getBoolean("AllowRenameCommand", true)), Boolean.class)).booleanValue();
+        this.allowRenameCommand = getAndSet(sect, "AllowRenameCommand", config.getBoolean("AllowRenameCommand", true), Boolean.class);
         config.set("AllowRenameCommand", null);
-        this.allowSummonCommand = ((Boolean) getAndSet(sect, "AllowSummonCommand", Boolean.valueOf(config.getBoolean("AllowSummonCommand", true)), Boolean.class)).booleanValue();
+        this.allowSummonCommand = getAndSet(sect, "AllowSummonCommand", config.getBoolean("AllowSummonCommand", true), Boolean.class);
         config.set("AllowSummonCommand", null);
-        this.allowTypesCommand = ((Boolean) getAndSet(sect, "AllowTypesCommand", Boolean.valueOf(config.getBoolean("AllowTypesCommand", true)), Boolean.class)).booleanValue();
+        this.allowTypesCommand = getAndSet(sect, "AllowTypesCommand", config.getBoolean("AllowTypesCommand", true), Boolean.class);
         config.set("AllowTypesCommand", null);
 
         sect = getConfigSect("Renaming");
 
-        this.blockRenamingOnWildHorses = ((Boolean) getAndSet(sect, "BlockRenamingOnWildHorses", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.allowClaimingWithNameTag = ((Boolean) getAndSet(sect, "AllowClaimingWithNameTag", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.allowRenameFromNameTag = ((Boolean) getAndSet(sect, "AllowRenamingFromNameTag", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.requireNameTagForRenaming = ((Boolean) getAndSet(sect, "RequireNameTagForRenaming", Boolean.valueOf(false), Boolean.class)).booleanValue();
+        this.blockRenamingOnWildHorses = getAndSet(sect, "BlockRenamingOnWildHorses", false, Boolean.class);
+        this.allowClaimingWithNameTag = getAndSet(sect, "AllowClaimingWithNameTag", false, Boolean.class);
+        this.allowRenameFromNameTag = getAndSet(sect, "AllowRenamingFromNameTag", false, Boolean.class);
+        this.requireNameTagForRenaming = getAndSet(sect, "RequireNameTagForRenaming", false, Boolean.class);
 
-        int maxHorseNameLength = ((Number) getAndSet(sect, "MaxHorseNameLength", Integer.valueOf(20), Number.class)).intValue();
+        int maxHorseNameLength = getAndSet(sect, "MaxHorseNameLength", 20, Number.class).intValue();
         if (maxHorseNameLength > 30)
             maxHorseNameLength = 30;
         this.maxHorseNameLength = maxHorseNameLength;
 
         sect = getConfigSect("Damage");
 
-        HashSet protectedDamageCauses = new HashSet();
-        this.protectedDamageCauses = Collections.unmodifiableSet(protectedDamageCauses);
+        HashSet<EntityDamageEvent.DamageCause> protectedDamageCauses = new HashSet<>();
 
-        List causeList = sect.getStringList("ProtectedDamageCauses");
+        List<String> causeList = sect.getStringList("ProtectedDamageCauses");
         for (int i = 0; i < causeList.size(); i++) {
-            String causeStr = (String) causeList.get(i);
+            String causeStr = causeList.get(i);
             for (EntityDamageEvent.DamageCause cause : EntityDamageEvent.DamageCause.values()) {
                 if (cause.toString().equalsIgnoreCase(causeStr)) {
                     causeList.set(i, cause.toString());
@@ -113,24 +111,25 @@ public class HorsesPermissionConfig extends AbstractConfig {
                 }
             }
         }
+
+        this.protectedDamageCauses = Collections.unmodifiableSet(protectedDamageCauses);
+
         sect.set("ProtectedDamageCauses", causeList);
 
-        this.invincibleHorses = ((Boolean) getAndSet(sect, "InvincibleHorses", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.protectFromOwner = ((Boolean) getAndSet(sect, "ProtectFromOwner", Boolean.valueOf(true), Boolean.class)).booleanValue();
-        this.protectFromPlayers = ((Boolean) getAndSet(sect, "ProtectFromPlayers", Boolean.valueOf(true), Boolean.class)).booleanValue();
-        this.protectFromMobs = ((Boolean) getAndSet(sect, "ProtectFromMobs", Boolean.valueOf(true), Boolean.class)).booleanValue();
-        this.onlyHurtHorseIfOwnerCanBeHurt = ((Boolean) getAndSet(sect, "OnlyHurtHorseIfOwnerCanBeHurt", Boolean.valueOf(true), Boolean.class)).booleanValue();
-        this.transferDamageToRider = ((Boolean) getAndSet(sect, "TransferDamageToRider", Boolean.valueOf(true), Boolean.class)).booleanValue();
+        this.invincibleHorses = getAndSet(sect, "InvincibleHorses", false, Boolean.class);
+        this.protectFromOwner = getAndSet(sect, "ProtectFromOwner", true, Boolean.class);
+        this.protectFromPlayers = getAndSet(sect, "ProtectFromPlayers", true, Boolean.class);
+        this.protectFromMobs = getAndSet(sect, "ProtectFromMobs", true, Boolean.class);
+        this.onlyHurtHorseIfOwnerCanBeHurt = getAndSet(sect, "OnlyHurtHorseIfOwnerCanBeHurt", true, Boolean.class);
+        this.transferDamageToRider = getAndSet(sect, "TransferDamageToRider", true, Boolean.class);
 
-        this.deleteHorseOnDeath = ((Boolean) getAndSet(sect, "DeleteHorseOnDeath", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.deleteHorseOnDeathByPlayer = ((Boolean) getAndSet(sect, "DeleteHorseOnDeathByPlayer", Boolean.valueOf(false), Boolean.class)).booleanValue();
-        this.keepEquipmentOnDeath = ((Boolean) getAndSet(sect, "KeepEquipmentOnDeath", Boolean.valueOf(false), Boolean.class)).booleanValue();
+        this.deleteHorseOnDeath = getAndSet(sect, "DeleteHorseOnDeath", false, Boolean.class);
+        this.deleteHorseOnDeathByPlayer = getAndSet(sect, "DeleteHorseOnDeathByPlayer", false, Boolean.class);
+        this.keepEquipmentOnDeath = getAndSet(sect, "KeepEquipmentOnDeath", false, Boolean.class);
 
-        this.deathCooldown = (((Number) getAndSet(sect, "DeathCooldown", Integer.valueOf(120), Number.class)).longValue() * 1000L);
+        this.deathCooldown = (getAndSet(sect, "DeathCooldown", 120, Number.class).longValue() * 1000L);
 
-        Map horseTypeConfigs = new HashMap();
-        this.horseTypeConfigs = Collections.unmodifiableMap(horseTypeConfigs);
-
+        Map<String, HorseTypeConfig> horseTypeConfigs = new HashMap<>();
         ConfigurationSection typeSect = getConfigSect("Types");
 
         set(typeSect, HorseType.PaintCreamy.toString(), getConfigSect(typeSect, "PaintCREAMY"));
@@ -142,11 +141,13 @@ public class HorsesPermissionConfig extends AbstractConfig {
             horseTypeConfigs.put(type.toString(), new HorseTypeConfig(plugin, sect, type));
         }
 
+        this.horseTypeConfigs = Collections.unmodifiableMap(horseTypeConfigs);
+
         saveConfiguration();
     }
 
     public HorseTypeConfig getHorseTypeConfig(HorseType type) {
-        return (HorseTypeConfig) this.horseTypeConfigs.get(type.toString());
+        return this.horseTypeConfigs.get(type.toString());
     }
 
     public HorseTypeConfig getHorseTypeConfigLike(String like) {

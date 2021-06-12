@@ -68,7 +68,7 @@ public abstract class ForgeCommand
 
     protected final void registerPermission(String perm) {
         if (this.permissions == null) {
-            this.permissions = new ArrayList(1);
+            this.permissions = new ArrayList<>(1);
         }
 
         this.permissions.add(perm);
@@ -118,7 +118,7 @@ public abstract class ForgeCommand
         }
 
         for (int i = 0; i < length; i++) {
-            ForgeCommandArgument argument = (ForgeCommandArgument) this.args.get(i);
+            ForgeCommandArgument argument = this.args.get(i);
             String value = args.getArg(i);
 
             if (!argument.argumentMatches(value)) {
@@ -137,7 +137,7 @@ public abstract class ForgeCommand
     }
 
     public final String[] getAliases() {
-        return (String[]) this.aliases.toArray(new String[this.aliases.size()]);
+        return this.aliases.toArray(new String[0]);
     }
 
     public final String getAliasString() {

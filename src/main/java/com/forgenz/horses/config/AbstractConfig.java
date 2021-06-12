@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.YamlConfigurationOptions;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 
@@ -61,7 +60,7 @@ public abstract class AbstractConfig
     }
 
     private String getPath() {
-        return String.format("%s%s%s", new Object[]{getFolder(), File.separator, this.fileName});
+        return String.format("%s%s%s", getFolder(), File.separator, this.fileName);
     }
 
     protected void addResourseToHeader(String resourse) {
@@ -88,7 +87,7 @@ public abstract class AbstractConfig
         this.cfg.options().header(null);
 
         PluginDescriptionFile pdf = getPlugin().getDescription();
-        addStringToHeader(String.format("%s v%s by %s\n%s\n\n", new Object[]{getPlugin().getName(), pdf.getVersion(), getPlugin().getAuthors(), pdf.getWebsite()}));
+        addStringToHeader(String.format("%s v%s by %s\n%s\n\n", getPlugin().getName(), pdf.getVersion(), getPlugin().getAuthors(), pdf.getWebsite()));
     }
 
     protected YamlConfiguration loadConfiguration() {
@@ -102,8 +101,7 @@ public abstract class AbstractConfig
             if (cfgFile.exists()) {
                 try {
                     this.cfg.load(cfgFile);
-                } catch (FileNotFoundException e) {
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 } catch (InvalidConfigurationException e) {
                     getPlugin().log(Level.SEVERE, "Failed to load configuration %1$s. Saving as %1$s.broken", e, new Object[]{path});
                     cfgFile.renameTo(new File(getPlugin().getDataFolder(), path + ".broken"));

@@ -17,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Horses extends ForgePlugin {
     private static Horses plugin;
@@ -74,13 +75,13 @@ public class Horses extends ForgePlugin {
             this.database.importHorses(this.config.importDatabaseType);
 
             this.commandHandler = new ForgeCommandHandler(this);
-            getCommand("horses").setExecutor(this.commandHandler);
+            Objects.requireNonNull(getCommand("horses")).setExecutor(this.commandHandler);
             this.commandHandler.setNumCommandsPerHelpPage(5);
 
             if (this.config.showAuthor) {
-                this.commandHandler.setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s %2$sby %1$s%5$s", new Object[]{ChatColor.DARK_GREEN, ChatColor.YELLOW, "Horses", "%VERSION%", "ShadowDog007"}));
+                this.commandHandler.setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s %2$sby %1$s%5$s", ChatColor.DARK_GREEN, ChatColor.YELLOW, "Horses", "%VERSION%", "ShadowDog007"));
             } else {
-                this.commandHandler.setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s", new Object[]{ChatColor.DARK_GREEN, ChatColor.YELLOW, "Horses", "%VERSION%"}));
+                this.commandHandler.setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s", ChatColor.DARK_GREEN, ChatColor.YELLOW, "Horses", "%VERSION%"));
             }
 
             this.commandHandler.registerCommand(new GiveCommand(this));

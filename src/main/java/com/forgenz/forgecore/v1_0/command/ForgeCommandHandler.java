@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,10 +42,10 @@ public final class ForgeCommandHandler extends ForgeCommand
     public ForgeCommandHandler(ForgePlugin plugin) {
         super(plugin);
 
-        setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s %2$sby %1$s%5$s", new Object[]{ChatColor.DARK_GREEN, ChatColor.YELLOW, "%NAME%", "%VERSION%", "%AUTHORS%"}));
-        setHelpCommandFormat(String.format("%1$s/%4$s %5$s %2$s%6$s %3$s%7$s", new Object[]{ChatColor.AQUA, ChatColor.DARK_AQUA, ChatColor.YELLOW, "%1$s", "%3$s", "%4$s", "%5$s"}));
-        setHelpMissingCommandFormat(String.format("%sNo sub-commands like %s", new Object[]{ChatColor.RED, "%1$s"}));
-        setNoPermissionMessage(String.format("%sNo permission to use this sub-command", new Object[]{ChatColor.RED}));
+        setHeaderFormat(String.format("%1$s%3$s %2$sv%1$s%4$s %2$sby %1$s%5$s", ChatColor.DARK_GREEN, ChatColor.YELLOW, "%NAME%", "%VERSION%", "%AUTHORS%"));
+        setHelpCommandFormat(String.format("%1$s/%4$s %5$s %2$s%6$s %3$s%7$s", ChatColor.AQUA, ChatColor.DARK_AQUA, ChatColor.YELLOW, "%1$s", "%3$s", "%4$s", "%5$s"));
+        setHelpMissingCommandFormat(String.format("%sNo sub-commands like %s", ChatColor.RED, "%1$s"));
+        setNoPermissionMessage(String.format("%sNo permission to use this sub-command", ChatColor.RED));
 
         registerAlias("help", true);
         registerAlias("h", false);
@@ -107,7 +108,7 @@ public final class ForgeCommandHandler extends ForgeCommand
     public void registerCommand(ForgeCommand command)
             throws IllegalArgumentException {
         if (!this.registeredCommands.add(command)) {
-            throw new IllegalArgumentException(String.format("The command '%s' is already been registered", new Object[]{command.getMainCommand()}));
+            throw new IllegalArgumentException(String.format("The command '%s' is already been registered", command.getMainCommand()));
         }
 
         for (String alias : command.getAliases()) {
@@ -116,12 +117,12 @@ public final class ForgeCommandHandler extends ForgeCommand
     }
 
     public final ForgeCommand findCommand(String like) {
-        ForgeCommand command = (ForgeCommand) this.aliases.get(like);
+        ForgeCommand command = this.aliases.get(like);
 
         if (command == null) {
-            for (Map.Entry e : this.aliases.entrySet()) {
-                if (((String) e.getKey()).startsWith(like)) {
-                    command = (ForgeCommand) e.getValue();
+            for (Map.Entry<String, ForgeCommand> e : this.aliases.entrySet()) {
+                if (e.getKey().startsWith(like)) {
+                    command = e.getValue();
                     break;
                 }
             }
@@ -130,11 +131,11 @@ public final class ForgeCommandHandler extends ForgeCommand
         return command;
     }
 
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0) {
             sender.sendMessage(this.header);
             if (!this.registeredCommands.isEmpty()) {
-                sender.sendMessage(String.format("%sType /%s help to see subcommands", new Object[]{ChatColor.AQUA, label}));
+                sender.sendMessage(String.format("%sType /%s help to see subcommands", ChatColor.AQUA, label));
             }
             return true;
         }
@@ -142,7 +143,7 @@ public final class ForgeCommandHandler extends ForgeCommand
         ForgeCommand subCommand = findCommand(args[0]);
 
         if (subCommand == null) {
-            sender.sendMessage(String.format(this.helpMissingCommand, new Object[]{args[0]}));
+            sender.sendMessage(String.format(this.helpMissingCommand, args[0]));
             return true;
         }
 
@@ -151,7 +152,7 @@ public final class ForgeCommandHandler extends ForgeCommand
         boolean isPlayer = sender instanceof Player;
 
         if ((!isPlayer) && (!subCommand.allowConsole())) {
-            sender.sendMessage(String.format("%1$sOnly players can use this sub-command", new Object[]{ChatColor.RED}));
+            sender.sendMessage(String.format("%1$sOnly players can use this sub-command", ChatColor.RED));
             return true;
         }
 
@@ -163,7 +164,7 @@ public final class ForgeCommandHandler extends ForgeCommand
         ForgeArgs arguments = new ForgeArgs(label, args);
 
         if (!subCommand.validateArguments(sender, arguments)) {
-            sender.sendMessage(String.format("%1$sType %2$s/%4$s help %3$s%5$s %1$sto see how to use this command", new Object[]{ChatColor.YELLOW, ChatColor.AQUA, ChatColor.DARK_AQUA, label, arguments.getSubCommandAlias()}));
+            sender.sendMessage(String.format("%1$sType %2$s/%4$s help %3$s%5$s %1$sto see how to use this command", ChatColor.YELLOW, ChatColor.AQUA, ChatColor.DARK_AQUA, label, arguments.getSubCommandAlias()));
             return true;
         }
 
@@ -184,28 +185,28 @@ public final class ForgeCommandHandler extends ForgeCommand
 
             if (command != null) {
                 if ((!player) || (this.showAllCommands) || (command.checkPermissions((Player) sender))) {
-                    sender.sendMessage(String.format(this.helpCommandFormat, new Object[]{args.getCommandUsed(), args.getSubCommandAlias(), command.getAliasString(), command.getArgString(), command.getDescription()}));
+                    sender.sendMessage(String.format(this.helpCommandFormat, args.getCommandUsed(), args.getSubCommandAlias(), command.getAliasString(), command.getArgString(), command.getDescription()));
                 } else {
                     sender.sendMessage(this.noPermission);
                 }
             } else {
-                sender.sendMessage(String.format(this.helpMissingCommand, new Object[]{args.getArg(0)}));
+                sender.sendMessage(String.format(this.helpMissingCommand, args.getArg(0)));
             }
             return;
         }
 
         int page = 1;
         if (hasPage) {
-            page = Integer.valueOf(args.getArg(0)).intValue();
+            page = Integer.parseInt(args.getArg(0));
         }
 
-        sender.sendMessage(String.format("%1$sShowing page %2$s%3$d %1$sof %2$s%4$d", new Object[]{ChatColor.YELLOW, ChatColor.AQUA, Integer.valueOf(page), Integer.valueOf(this.registeredCommands.size() / this.numCommandsPerHelpPage + 1)}));
+        sender.sendMessage(String.format("%1$sShowing page %2$s%3$d %1$sof %2$s%4$d", ChatColor.YELLOW, ChatColor.AQUA, page, this.registeredCommands.size() / this.numCommandsPerHelpPage + 1));
 
         for (int i = (page - 1) * this.numCommandsPerHelpPage; (i < this.registeredCommands.size()) && (i < page * this.numCommandsPerHelpPage); i++) {
-            ForgeCommand command = (ForgeCommand) this.registeredCommands.get(i);
+            ForgeCommand command = this.registeredCommands.get(i);
 
             if ((!player) || (this.showAllCommands) || (command.checkPermissions((Player) sender))) {
-                sender.sendMessage(String.format(this.helpCommandFormat, new Object[]{args.getCommandUsed(), command.getMainCommand(), command.getAliasString(), command.getArgString(), command.getDescription()}));
+                sender.sendMessage(String.format(this.helpCommandFormat, args.getCommandUsed(), command.getMainCommand(), command.getAliasString(), command.getArgString(), command.getDescription()));
             }
         }
     }

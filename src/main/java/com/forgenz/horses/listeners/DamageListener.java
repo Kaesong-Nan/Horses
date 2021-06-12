@@ -61,7 +61,7 @@ public class DamageListener extends ForgeListener {
                 return;
             }
 
-            EntityDamageEvent e = null;
+            EntityDamageEvent e;
             double damage = pcfg.transferDamageToRider ? event.getDamage() / horse.getMaxHealth() * player.getMaxHealth() : 0.0D;
 
             Player exemptedPlayer = null;

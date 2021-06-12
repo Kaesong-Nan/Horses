@@ -2,14 +2,13 @@ package com.forgenz.horses.util;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.Horse;
 
 import java.lang.reflect.Method;
 
 public class HorseSpeedUtil {
-    private static int version = 1;
+    private static final int version = 1;
 
-    private static int spam = 0;
+    private static final int spam = 0;
     private static Object speedAttribute;
     private static Method getHandle;
     private static Method getAttributeInstance;

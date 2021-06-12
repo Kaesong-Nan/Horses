@@ -28,7 +28,7 @@ public class HorseDismissTask extends BukkitRunnable
 
     public void run() {
         if (this.players == null) {
-            this.players = Bukkit.getOnlinePlayers().toArray(new Player[Bukkit.getOnlinePlayers().size()]);
+            this.players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
             this.index = 0;
         }
 

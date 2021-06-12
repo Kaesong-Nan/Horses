@@ -23,7 +23,7 @@ public class DeleteCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("<%1%s%2$s>", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Name}));
+        setArgumentString(String.format("<%1%s%2$s>", Messages.Misc_Words_Horse, Messages.Misc_Words_Name));
         setDescription(Messages.Command_Delete_Description.toString());
     }
 

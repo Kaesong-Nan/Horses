@@ -13,13 +13,13 @@ public enum HorseDatabaseStorageType {
 
     private final Class<? extends HorseDatabase> clazz;
 
-    private HorseDatabaseStorageType(Class<? extends HorseDatabase> clazz) {
+    HorseDatabaseStorageType(Class<? extends HorseDatabase> clazz) {
         this.clazz = clazz;
     }
 
     public HorseDatabase create(Horses plugin, boolean fallback) throws InvocationTargetException, NoSuchMethodException {
         try {
-            return (HorseDatabase) this.clazz.getConstructor(new Class[]{Horses.class}).newInstance(new Object[]{plugin});
+            return this.clazz.getConstructor(new Class[]{Horses.class}).newInstance(plugin);
         } catch (NoSuchMethodException e) {
             plugin.severe("Failed to find constructor for the %s database type", e, new Object[]{toString()});
             throw e;

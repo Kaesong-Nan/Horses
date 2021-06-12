@@ -12,12 +12,14 @@ import com.forgenz.horses.pack.PackDatabase;
 import com.voxmc.voxlib.ItemUtils;
 import com.voxmc.voxlib.util.EssentialsItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 /**
  * Created by john on 8/12/15.
@@ -32,7 +34,7 @@ public class PackCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("<%1$s%2$s>", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Name}));
+        setArgumentString(String.format("<%1$s%2$s>", Messages.Misc_Words_Horse, Messages.Misc_Words_Name));
         setDescription(Messages.Command_Summon_Description.toString());
     }
 
@@ -90,7 +92,7 @@ public class PackCommand extends ForgeCommand {
         String jumpStrength = speedFormat.format(horse.getJumpStrength());
         String displayName = horse.getDisplayName();
         String breed = horse.getType().name();
-        String maxHealth = ((int) (Math.round(player.getMaxHealth()))) + "";
+        String maxHealth = ((int) (Math.round(Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()))) + "";
         String health = ((int) (Math.round(player.getHealth()))) + "";
         String saddleBag = "NONE";
         if (horse.getItems().length > 2) {

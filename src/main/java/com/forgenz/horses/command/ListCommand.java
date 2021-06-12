@@ -25,7 +25,7 @@ public class ListCommand extends ForgeCommand {
         registerArgument(new ForgeCommandArgument("^[a-z0-9_]{0,16}$", 2, true, Messages.Command_List_Error_InvalidCharactersPlayerName.toString()));
 
         setAllowOp(true);
-        setArgumentString(String.format("[%s]", new Object[]{Messages.Misc_Words_Player}));
+        setArgumentString(String.format("[%s]", Messages.Misc_Words_Player));
         setDescription(Messages.Command_List_Description.toString());
     }
 
@@ -41,7 +41,7 @@ public class ListCommand extends ForgeCommand {
             }
         }
 
-        Player player = null;
+        Player player;
         if (args.getNumArgs() >= 1) {
             if (!sender.hasPermission("horses.command.list.all")) {
                 Messages.Command_List_Error_NoPermissionToListPlayersHorses.sendMessage(sender);
@@ -52,6 +52,7 @@ public class ListCommand extends ForgeCommand {
 
             if (player == null) {
                 Messages.Command_List_Error_CouldNotFindPlayer.sendMessage(sender, new Object[]{args.getArg(0)});
+                return;
             }
 
         } else if ((sender instanceof Player)) {
@@ -79,9 +80,9 @@ public class ListCommand extends ForgeCommand {
             Messages.Command_List_Error_NoHorses.sendMessage(sender);
         } else {
             if (player != sender)
-                horses.insert(0, String.format(Messages.Command_List_Success_InitialMessageOtherPlayer.toString(), new Object[]{player.getName()}));
+                horses.insert(0, String.format(Messages.Command_List_Success_InitialMessageOtherPlayer.toString(), player.getName()));
             else
-                horses.insert(0, Messages.Command_List_Success_InitialMessage.toString());
+                horses.insert(0, Messages.Command_List_Success_InitialMessage);
             sender.sendMessage(horses.toString());
         }
     }

@@ -39,7 +39,7 @@ public class RebuildCommand extends ForgeCommand {
         }
 
         YamlDatabase yamlDb = (YamlDatabase) database;
-        boolean success = false;
+        boolean success;
         try {
             getPlugin().onDisable();
 
@@ -52,7 +52,7 @@ public class RebuildCommand extends ForgeCommand {
             return;
         }
 
-        sender.sendMessage(new StringBuilder().append("Rebuilt database with ").append(success ? "no errors" : "errors").toString());
+        sender.sendMessage("Rebuilt database with " + (success ? "no errors" : "errors"));
         Messages.Command_Reload_Success.sendMessage(sender);
     }
 

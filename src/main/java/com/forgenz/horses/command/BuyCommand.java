@@ -29,7 +29,7 @@ public class BuyCommand extends ForgeCommand {
 
         setAllowOp(true);
         setAllowConsole(false);
-        setArgumentString(String.format("<%1$s%2$s> <%1$s%3$s>", new Object[]{Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_Type}));
+        setArgumentString(String.format("<%1$s%2$s> <%1$s%3$s>", Messages.Misc_Words_Horse, Messages.Misc_Words_Name, Messages.Misc_Words_Type));
         setDescription(Messages.Command_Buy_Description.toString());
     }
 
@@ -62,7 +62,7 @@ public class BuyCommand extends ForgeCommand {
 
 
         if (name.length() > pcfg.maxHorseNameLength) {
-            Messages.Misc_Command_Error_HorseNameTooLong.sendMessage(player, new Object[]{Integer.valueOf(pcfg.maxHorseNameLength)});
+            Messages.Misc_Command_Error_HorseNameTooLong.sendMessage(player, new Object[]{pcfg.maxHorseNameLength});
             return;
         }
 
@@ -93,7 +93,7 @@ public class BuyCommand extends ForgeCommand {
         Stable stable = getPlugin().getHorseDatabase().getPlayersStable(player);
 
         if (stable.getHorseCount() >= pcfg.maxHorses) {
-            Messages.Command_Buy_Error_TooManyHorses.sendMessage(player, new Object[]{Integer.valueOf(pcfg.maxHorses)});
+            Messages.Command_Buy_Error_TooManyHorses.sendMessage(player, new Object[]{pcfg.maxHorses});
             return;
         }
 
@@ -111,11 +111,11 @@ public class BuyCommand extends ForgeCommand {
             EconomyResponse responce = getPlugin().getEconomy().withdrawPlayer(player.getName(), typecfg.buyCost);
 
             if (!responce.transactionSuccess()) {
-                Messages.Command_Buy_Error_CantAffordHorse.sendMessage(player, new Object[]{Double.valueOf(typecfg.buyCost)});
+                Messages.Command_Buy_Error_CantAffordHorse.sendMessage(player, new Object[]{typecfg.buyCost});
                 return;
             }
 
-            Messages.Command_Buy_Success_BoughtHorse.sendMessage(player, new Object[]{Double.valueOf(typecfg.buyCost)});
+            Messages.Command_Buy_Success_BoughtHorse.sendMessage(player, new Object[]{typecfg.buyCost});
         }
 
         PlayerHorse horse = stable.createHorse(args.getArg(0), typecfg, pcfg.startWithSaddle);
